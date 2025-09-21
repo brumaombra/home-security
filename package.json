@@ -1,0 +1,24 @@
+{
+	"name": "object-recognition",
+	"version": "1.0.0",
+	"description": "A simple service for object recognition",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "node index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Mauro Brambilla",
+	"license": "ISC",
+	"dependencies": {
+		"@tensorflow-models/coco-ssd": "2.2.3",
+		"@tensorflow-models/pose-detection": "2.1.3",
+		"@tensorflow/tfjs": "4.22.0",
+		"canvas": "3.2.0",
+		"cors": "2.8.5",
+		"express": "5.1.0",
+		"jimp": "1.6.0",
+		"multer": "2.0.2"
+	}
+}
