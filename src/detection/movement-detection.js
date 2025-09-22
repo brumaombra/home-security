@@ -5,9 +5,11 @@ import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 import { saveBase64ImageToFile } from '../utils/utils.js';
 
 let lastFrame = null;
+let isMovementDetected = false;
+let skipCounter = 0;
 
 // Detect movement between frames
-export const detectMovement = async ({ image, cooldownTime = 0 }) => {
+export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5 }) => {
     // Convert raw image to PNG format
     const pngFrame = new PNG({ width: image.width, height: image.height });
     pngFrame.data = image.data;
@@ -28,12 +30,26 @@ export const detectMovement = async ({ image, cooldownTime = 0 }) => {
 
         // If the number of different pixels exceeds a threshold, log movement
         if (numDiffPixels > 5000) {
-            console.log('⚠️ Movement detected!');
+            if (!isMovementDetected) {
+                console.log(`🚶 Movement detected! Skipping ${framesToSkip} frames before analysis...`);
+                isMovementDetected = true;
+                skipCounter = framesToSkip;
+            }
+        }
+    }
+
+    // Handle skipping and analysis
+    if (isMovementDetected) {
+        if (skipCounter > 0) {
+            skipCounter--; // Decrement skip counter
+        } else {
+            console.log('🔍 Analyzing frame after skipping...');
             stopStreamAnalysis(); // Stop further analysis to save resources
             await analyzeMovementImage({ pngFrame }); // Analyze the current frame for object detection
             setTimeout(() => {
                 startStreamAnalysis(); // Resume analysis after processing
             }, cooldownTime); // Wait before resuming
+            isMovementDetected = false; // Reset for next detection
         }
     }
 

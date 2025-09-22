@@ -48,7 +48,7 @@ export const startStream = async () => {
             // Decode and process
             try {
                 const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
-                await detectMovement({ rawImage, cooldownTime: 2000 });
+                await detectMovement({ image: rawImage, cooldownTime: 2000, framesToSkip: 5 });
             } catch (err) {
                 console.error('❌ JPEG decode error:', err.message);
             }
