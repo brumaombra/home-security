@@ -402,7 +402,7 @@
                 formData.append('image', selectedFile);
                 formData.append('generateImage', true);
 
-                const response = await fetch('/detect', {
+                const response = await fetch('/api/detect', {
                     method: 'POST',
                     body: formData
                 });
@@ -443,7 +443,7 @@
                 formData.append('image', selectedFile);
                 formData.append('generateImage', true);
 
-                const response = await fetch('/detect-poses', {
+                const response = await fetch('/api/detect-poses', {
                     method: 'POST',
                     body: formData
                 });

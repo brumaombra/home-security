@@ -83,21 +83,16 @@
 
                 if (data.images && data.images.length > 0) {
                     gallery.innerHTML = '';
-                    data.images.forEach(filename => {
+                    data.images.forEach(imageData => {
                         const item = document.createElement('div');
                         item.className = 'image-item';
 
-                        // Extract timestamp from filename
-                        const timestampMatch = filename.match(/detection_(\d+)\.jpg/);
-                        let dateStr = 'Unknown date';
-                        if (timestampMatch) {
-                            const timestamp = parseInt(timestampMatch[1]);
-                            const date = new Date(timestamp);
-                            dateStr = date.toLocaleString();
-                        }
+                        // Use the timestamp from the API response
+                        const date = new Date(imageData.timestamp);
+                        const dateStr = date.toLocaleString();
 
                         item.innerHTML = `
-                            <img src="/images/${filename}" alt="${filename}" loading="lazy">
+                            <img src="/images/${imageData.filename}" alt="${imageData.filename}" loading="lazy">
                             <div class="image-info">${dateStr}</div>
                         `;
 

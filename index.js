@@ -5,7 +5,8 @@ import { startServer } from './src/server/web-server.js';
 // Configuration settings
 const config = {
     detectionType: 'pose', // 'object' or 'pose'
-    streamSourceUrl: 'http://192.168.21.117:8080/video' // URL of the MJPEG stream
+    streamSourceUrl: 'http://192.168.21.117:8080/video', // URL of the MJPEG stream
+    serverPort: 4000 // Port for the web server
 };
 
 // Initialize the app
@@ -27,7 +28,7 @@ const initApp = async config => {
         await startStream(config);
 
         // Start the server
-        startServer();
+        startServer(config);
     } catch (error) {
         console.error('❌ Error initializing app:', error);
         process.exit(1);
