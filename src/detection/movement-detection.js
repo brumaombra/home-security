@@ -1,6 +1,7 @@
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { detectObjectsInImage } from '../detection/object-detection.js';
+import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 
 let lastFrame = null;
 
@@ -27,23 +28,32 @@ export const detectMovement = async rawImage => {
         // If the number of different pixels exceeds a threshold, log movement
         if (numDiffPixels > 5000) {
             console.log('⚠️ Movement detected!');
-
-            try {
-                // Create PNG buffer from current frame
-                const pngBuffer = PNG.sync.write(pngFrame);
-
-                // Perform object detection
-                const detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
-                console.log('🔍 Object detections:', detectionData.detections);
-                if (detectionData.annotatedImage) {
-                    console.log('🎨 Annotated image generated');
-                }
-            } catch (error) {
-                console.error('❌ Error in object detection:', error);
-            }
+            stopStreamAnalysis(); // Stop further analysis to save resources
+            await analyzeMovementImage(pngFrame); // Analyze the current frame for object detection
+            startStreamAnalysis(); // Resume analysis after processing
         }
     }
 
     // Update last frame
     lastFrame = pngFrame;
+};
+
+// Analyze a single image for movement and object detection
+const analyzeMovementImage = async pngFrame => {
+    console.log('🔍 Analyzing frame for object detection...');
+
+    try {
+        // Create PNG buffer from current frame
+        const pngBuffer = PNG.sync.write(pngFrame);
+
+        // Perform object detection
+        const detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
+        console.log('🔍 Object detections:', detectionData.detections);
+        if (detectionData.annotatedImage) {
+            console.log('🎨 Annotated image generated');
+            saveBase64ImageToFile(detectionData.annotatedImage);
+        }
+    } catch (error) {
+        console.error('❌ Error in object detection:', error);
+    }
 };
