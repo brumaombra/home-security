@@ -90,11 +90,21 @@ export const startStream = async config => {
             });
         } catch (error) {
             console.error(`❌ Failed to start stream ${streamId}:`, error.message);
+            throw error;
         }
     });
 
     // Wait for all streams to be initialized
-    await Promise.allSettled(streamPromises);
+    const results = await Promise.allSettled(streamPromises);
+
+    // Check if all streams failed
+    const allFailed = results.every(result => result.status === 'rejected');
+    if (allFailed) {
+        console.error('❌ All streams failed to initialize!');
+        throw new Error('All streams failed to initialize!');
+    }
+
+    // Success message
     console.log('📹 All streams initialized!');
 };
 
