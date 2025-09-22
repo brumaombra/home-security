@@ -70,10 +70,8 @@ const analyzeMovementImage = async ({ pngFrame, detectionType }) => {
         let detectionData;
         if (detectionType === 'object') {
             detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
-            console.log('🔍 Object detections:', detectionData.detections);
         } else if (detectionType === 'pose') {
             detectionData = await detectPosesInImage({ imageBuffer: pngBuffer });
-            console.log('🏃 Pose detections:', detectionData.poses);
         }
 
         // If an annotated image is generated, save it to a file

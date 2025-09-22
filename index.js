@@ -1,6 +1,6 @@
 import { initTensorFlow, loadObjectDetectionModel, loadPoseDetectionModel } from './src/tensorflow/tensorflow.js';
 import { startStream } from './src/stream/stream.js';
-// import { startServer } from './src/server/web-server.js';
+import { startServer } from './src/server/web-server.js';
 
 // Configuration settings
 const config = {
@@ -27,7 +27,7 @@ const initApp = async config => {
         await startStream(config);
 
         // Start the server
-        // startServer();
+        startServer();
     } catch (error) {
         console.error('❌ Error initializing app:', error);
         process.exit(1);
