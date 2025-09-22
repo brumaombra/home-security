@@ -1,66 +1,69 @@
 import fetch from 'node-fetch';
 import jpeg from 'jpeg-js';
-import { PNG } from 'pngjs';
-import pixelmatch from 'pixelmatch';
 
-const streamUrl = 'http://192.168.1.50:8080/video';
-let lastFrame = null;
+const streamUrl = 'http://192.168.21.117:8080/video'; // URL of the MJPEG stream
+let analyzeStream = true; // Flag to control analysis
 
 // Initialize and start the video stream processing
 export const startStream = async () => {
     // Fetch the MJPEG stream
-    console.log('🚀 Starting stream...');
+    console.log('📹 Starting stream...');
     const response = await fetch(streamUrl);
-    console.log('📡 Stream connection established successfully!');
+    console.log('✅ Stream connection established successfully!');
     let buffer = Buffer.alloc(0);
 
     // Process incoming data chunks
-    response.body.on('data', chunk => {
+    response.body.on('data', async chunk => {
+        if (!analyzeStream) return; // Skip processing if analysis is disabled
+
         // Append chunk to buffer
         buffer = Buffer.concat([buffer, chunk]);
-        const start = buffer.indexOf(Buffer.from([0xff, 0xd8]));
-        const end = buffer.indexOf(Buffer.from([0xff, 0xd9]));
 
-        // Extract complete JPEG frame
-        if (start !== -1 && end !== -1 && end > start) {
-            const jpegFrame = buffer.slice(start, end + 2);
-            buffer = buffer.slice(end + 2);
+        // Get boundary from Content-Type (assuming it's set)
+        const contentType = response.headers.get('content-type');
+        const boundaryMatch = contentType.match(/boundary=(.+)/);
+        if (!boundaryMatch) return;
+        const boundary = '--' + boundaryMatch[1];
+        const boundaryBuffer = Buffer.from(boundary + '\r\n');
+        const endBoundaryBuffer = Buffer.from('\r\n' + boundary);
 
-            // Decode JPEG to raw image
-            const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
+        let pos = 0;
+        while ((pos = buffer.indexOf(boundaryBuffer, pos)) !== -1) {
+            const endPos = buffer.indexOf(endBoundaryBuffer, pos + boundaryBuffer.length);
+            if (endPos === -1) break; // Incomplete part
 
-            // Process the frame for movement detection
-            detectMovement(rawImage);
+            // Find the start of JPEG data (after headers)
+            const partStart = pos + boundaryBuffer.length;
+            const headerEnd = buffer.indexOf('\r\n\r\n', partStart);
+            if (headerEnd === -1) continue;
+            const jpegStart = headerEnd + 4;
+
+            // Extract JPEG
+            const jpegFrame = buffer.subarray(jpegStart, endPos);
+
+            // Decode and process
+            try {
+                const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
+                await detectMovement(rawImage);
+            } catch (err) {
+                console.error('❌ JPEG decode error:', err.message);
+            }
+
+            // Remove processed part
+            buffer = buffer.subarray(endPos + endBoundaryBuffer.length);
+            pos = 0;
         }
     });
 };
 
-// Detect movement between frames
-const detectMovement = rawImage => {
-    // Convert raw image to PNG format
-    const pngFrame = new PNG({ width: rawImage.width, height: rawImage.height });
-    pngFrame.data = rawImage.data;
+// Start the video stream analysis
+export const startStreamAnalysis = () => {
+    analyzeStream = true; // Flag to start analysis
+    console.log('📹 Stream analysis started!');
+};
 
-    // If there's a previous frame, compare it with the current one
-    if (lastFrame) {
-        const diff = new PNG({ width: rawImage.width, height: rawImage.height });
-
-        // Compare the two frames
-        const numDiffPixels = pixelmatch(
-            lastFrame.data,
-            pngFrame.data,
-            diff.data,
-            rawImage.width,
-            rawImage.height,
-            { threshold: 0.1 }
-        );
-
-        // If the number of different pixels exceeds a threshold, log movement
-        if (numDiffPixels > 5000) {
-            console.log('⚠️ Movimento rilevato!');
-        }
-    }
-
-    // Update last frame
-    lastFrame = pngFrame;
+// Stop the video stream analysis
+export const stopStreamAnalysis = () => {
+    analyzeStream = false; // Flag to stop analysis
+    console.log('🛑 Stream analysis stopped!');
 };

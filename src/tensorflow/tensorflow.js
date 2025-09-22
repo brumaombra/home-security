@@ -8,11 +8,11 @@ let poseDetectionModel = null; // Pose detection model instance
 // Initialize TensorFlow.js
 export const initTensorFlow = async () => {
     try {
+        console.log('🤖 Initializing TensorFlow...');
         await tf.ready(); // Ensure TensorFlow.js is ready
-        console.log('TensorFlow.js backend:', tf.getBackend());
-        console.log('TensorFlow.js is ready');
+        console.log('✅ TensorFlow is ready!');
     } catch (error) {
-        console.error('Error initializing TensorFlow.js:', error);
+        console.error('❌ Error initializing TensorFlow:', error);
         throw error;
     }
 };
@@ -20,11 +20,11 @@ export const initTensorFlow = async () => {
 // Load the COCO-SSD model
 export const loadObjectDetectionModel = async () => {
     try {
-        console.log('Loading COCO-SSD model...');
+        console.log('📦 Loading COCO-SSD model...');
         objectDetectionModel = await cocoSsd.load(); // Load the model
-        console.log('COCO-SSD model loaded successfully');
+        console.log('✅ COCO-SSD model loaded successfully');
     } catch (error) {
-        console.error('Error loading model:', error);
+        console.error('❌ Error loading model:', error);
         throw error;
     }
 };
@@ -32,14 +32,14 @@ export const loadObjectDetectionModel = async () => {
 // Load the pose detection model
 export const loadPoseDetectionModel = async () => {
     try {
-        console.log('Loading pose detection model...');
+        console.log('🏃 Loading pose detection model...');
         const detectorConfig = {
             modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
         };
         poseDetectionModel = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
-        console.log('Pose detection model loaded successfully');
+        console.log('✅ Pose detection model loaded successfully');
     } catch (error) {
-        console.error('Error loading pose model:', error);
+        console.error('❌ Error loading pose model:', error);
         throw error;
     }
 };
