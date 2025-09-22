@@ -11,7 +11,7 @@ export const saveBase64ImageToFile = base64Image => {
     try {
         const timestamp = Date.now();
         const filename = `detection_${timestamp}.jpg`;
-        fs.writeFileSync(`../public/images/${filename}`, base64Image, 'base64');
+        fs.writeFileSync(`public/images/${filename}`, base64Image, 'base64');
         console.log(`💾 Saved detection image: ${filename}`);
     } catch (error) {
         console.error('❌ Error saving detection image:', error);

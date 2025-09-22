@@ -25,7 +25,7 @@ export const detectPosesInImage = async ({ imageBuffer, generateImage = true }) 
         let base64ImageWithPoses = null;
         if (generateImage) {
             try {
-                console.log('🖼️ Generating annotated image with poses');
+                console.log('🎨 Generating annotated image with poses');
                 const annotatedImage = await drawPoses(originalImage, poses); // Draw poses on image
                 base64ImageWithPoses = await imageToBase64(annotatedImage); // Convert annotated image to base64
             } catch (error) {
