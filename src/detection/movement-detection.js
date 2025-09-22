@@ -2,6 +2,7 @@ import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { detectObjectsInImage } from '../detection/object-detection.js';
 import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
+import { saveBase64ImageToFile } from '../utils/utils.js';
 
 let lastFrame = null;
 

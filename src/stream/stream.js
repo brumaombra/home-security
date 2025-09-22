@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import jpeg from 'jpeg-js';
+import { detectMovement } from '../detection/movement-detection.js';
 
 const streamUrl = 'http://192.168.21.117:8080/video'; // URL of the MJPEG stream
 let analyzeStream = true; // Flag to control analysis
