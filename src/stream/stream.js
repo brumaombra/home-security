@@ -1,60 +1,66 @@
-import Stream from 'node-rtsp-stream';
-import ffmpeg from 'fluent-ffmpeg';
+import fetch from 'node-fetch';
+import jpeg from 'jpeg-js';
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
 
-let stream;
-let motionProcess;
+const streamUrl = 'http://192.168.1.50:8080/video';
+let lastFrame = null;
 
-const rtspUrl = 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4';
+// Initialize and start the video stream processing
+export const startStream = async () => {
+    // Fetch the MJPEG stream
+    console.log('🚀 Starting stream...');
+    const response = await fetch(streamUrl);
+    console.log('📡 Stream connection established successfully!');
+    let buffer = Buffer.alloc(0);
 
-// Initialize the stream
-export const initStream = () => {
-    stream = new Stream({
-        name: 'ipcam',
-        streamUrl: rtspUrl,
-        wsPort: 9999,
-        ffmpegOptions: {
-            '-stats': '',
-            '-r': 30
+    // Process incoming data chunks
+    response.body.on('data', chunk => {
+        // Append chunk to buffer
+        buffer = Buffer.concat([buffer, chunk]);
+        const start = buffer.indexOf(Buffer.from([0xff, 0xd8]));
+        const end = buffer.indexOf(Buffer.from([0xff, 0xd9]));
+
+        // Extract complete JPEG frame
+        if (start !== -1 && end !== -1 && end > start) {
+            const jpegFrame = buffer.slice(start, end + 2);
+            buffer = buffer.slice(end + 2);
+
+            // Decode JPEG to raw image
+            const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
+
+            // Process the frame for movement detection
+            detectMovement(rawImage);
         }
     });
-
-    console.log('RTSP stream started on ws://localhost:9999');
 };
 
-// Initialize motion detection
-export const initMotionDetection = () => {
-    motionProcess = ffmpeg(rtspUrl)
-        .inputOptions('-rtsp_transport tcp')
-        .videoFilters('select=gt(scene\\,0.1),metadata=print:file=-')
-        .output(process.platform === 'win32' ? 'NUL' : '/dev/null')
-        .format('null')
-        .on('stderr', (line) => {
-            if (line.includes('scene_score')) {
-                console.log('🚨 Motion detected!', line);
-            }
-        })
-        .on('error', (err) => {
-            console.error('Motion detection error:', err);
-        })
-        .run();
+// Detect movement between frames
+const detectMovement = rawImage => {
+    // Convert raw image to PNG format
+    const pngFrame = new PNG({ width: rawImage.width, height: rawImage.height });
+    pngFrame.data = rawImage.data;
 
-    console.log('Motion detection started');
-};
+    // If there's a previous frame, compare it with the current one
+    if (lastFrame) {
+        const diff = new PNG({ width: rawImage.width, height: rawImage.height });
 
-// Stop the stream
-export const stopStream = () => {
-    if (stream) {
-        stream.stop();
-        stream = null;
-        console.log('RTSP stream stopped');
+        // Compare the two frames
+        const numDiffPixels = pixelmatch(
+            lastFrame.data,
+            pngFrame.data,
+            diff.data,
+            rawImage.width,
+            rawImage.height,
+            { threshold: 0.1 }
+        );
+
+        // If the number of different pixels exceeds a threshold, log movement
+        if (numDiffPixels > 5000) {
+            console.log('⚠️ Movimento rilevato!');
+        }
     }
-};
 
-// Stop the motion detection
-export const stopMotionDetection = () => {
-    if (motionProcess) {
-        motionProcess.kill('SIGINT');
-        motionProcess = null;
-        console.log('Motion detection stopped');
-    }
+    // Update last frame
+    lastFrame = pngFrame;
 };
