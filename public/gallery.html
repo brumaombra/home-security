@@ -19,6 +19,7 @@
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
+            cursor: pointer;
         }
 
         .image-item:hover {
@@ -51,6 +52,29 @@
             font-size: 18px;
             color: #ff6b6b;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .modal.show {
+            display: flex;
+        }
     </style>
 </head>
 
@@ -69,9 +93,16 @@
         </div>
     </div>
 
+    <div id="modal" class="modal">
+        <img id="modalImage" src="" alt="">
+    </div>
+
     <script>
+        const gallery = document.getElementById('gallery');
+        const modal = document.getElementById('modal');
+        const modalImage = document.getElementById('modalImage');
+
         async function loadImages() {
-            const gallery = document.getElementById('gallery');
             gallery.innerHTML = '<div class="loading">Loading images...</div>';
 
             try {
@@ -103,6 +134,19 @@
                 gallery.innerHTML = '<div class="error">Failed to load images</div>';
             }
         }
+
+        // Event listener for opening images in modal
+        gallery.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                modalImage.src = e.target.src;
+                modal.classList.add('show');
+            }
+        });
+
+        // Event listener for closing modal
+        modal.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
 
         // Load images when page loads
         loadImages();
