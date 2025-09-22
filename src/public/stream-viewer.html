@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RTSP Stream</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsmpeg@1.0.0/jsmpg.js"></script>
+</head>
+
+<body>
+    <canvas id="videoCanvas"></canvas>
+
+    <script>
+        // Connect to the WebSocket from Node
+        const url = 'ws://localhost:9999';
+        const canvas = document.getElementById('videoCanvas');
+        const player = new jsmpeg(url, { canvas: canvas });
+    </script>
+</body>
+
+</html>
