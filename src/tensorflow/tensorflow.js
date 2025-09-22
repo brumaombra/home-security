@@ -48,7 +48,7 @@ export const loadPoseDetectionModel = async () => {
 export const detectObjects = async inputTensor => {
     // Check if model is loaded
     if (!objectDetectionModel) {
-        throw new Error('Model not loaded');
+        throw new Error('❌ Model not loaded');
     }
 
     // Perform object detection
@@ -60,7 +60,7 @@ export const detectObjects = async inputTensor => {
 export const detectPoses = async inputTensor => {
     // Check if pose model is loaded
     if (!poseDetectionModel) {
-        throw new Error('Pose model not loaded');
+        throw new Error('❌ Pose model not loaded');
     }
 
     // Perform pose detection

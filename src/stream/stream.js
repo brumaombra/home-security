@@ -42,10 +42,13 @@ export const startStream = async () => {
             // Extract JPEG
             const jpegFrame = buffer.subarray(jpegStart, endPos);
 
+            // Check if analysis is still enabled before processing
+            // if (!analyzeStream) break;
+
             // Decode and process
             try {
                 const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
-                await detectMovement(rawImage);
+                await detectMovement({ rawImage, cooldownTime: 2000 });
             } catch (err) {
                 console.error('❌ JPEG decode error:', err.message);
             }

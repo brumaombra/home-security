@@ -7,22 +7,22 @@ import { saveBase64ImageToFile } from '../utils/utils.js';
 let lastFrame = null;
 
 // Detect movement between frames
-export const detectMovement = async rawImage => {
+export const detectMovement = async ({ image, cooldownTime = 0 }) => {
     // Convert raw image to PNG format
-    const pngFrame = new PNG({ width: rawImage.width, height: rawImage.height });
-    pngFrame.data = rawImage.data;
+    const pngFrame = new PNG({ width: image.width, height: image.height });
+    pngFrame.data = image.data;
 
     // If there's a previous frame, compare it with the current one
     if (lastFrame) {
-        const diff = new PNG({ width: rawImage.width, height: rawImage.height });
+        const diff = new PNG({ width: image.width, height: image.height });
 
         // Compare the two frames
         const numDiffPixels = pixelmatch(
             lastFrame.data,
             pngFrame.data,
             diff.data,
-            rawImage.width,
-            rawImage.height,
+            image.width,
+            image.height,
             { threshold: 0.1 }
         );
 
@@ -30,8 +30,10 @@ export const detectMovement = async rawImage => {
         if (numDiffPixels > 5000) {
             console.log('⚠️ Movement detected!');
             stopStreamAnalysis(); // Stop further analysis to save resources
-            await analyzeMovementImage(pngFrame); // Analyze the current frame for object detection
-            startStreamAnalysis(); // Resume analysis after processing
+            await analyzeMovementImage({ pngFrame }); // Analyze the current frame for object detection
+            setTimeout(() => {
+                startStreamAnalysis(); // Resume analysis after processing
+            }, cooldownTime); // Wait before resuming
         }
     }
 
@@ -40,7 +42,7 @@ export const detectMovement = async rawImage => {
 };
 
 // Analyze a single image for movement and object detection
-const analyzeMovementImage = async pngFrame => {
+const analyzeMovementImage = async ({ pngFrame }) => {
     console.log('🔍 Analyzing frame for object detection...');
 
     try {

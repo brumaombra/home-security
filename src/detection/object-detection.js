@@ -28,8 +28,7 @@ export const detectObjectsInImage = async ({ imageBuffer, generateImage = true }
             try {
                 console.log('🎨 Generating annotated image with detections');
                 const annotatedImage = await drawDetections(originalImage, predictions); // Draw detections on image
-                const base64Image = await imageToBase64(annotatedImage); // Convert annotated image to base64
-                base64ImageWithDetections = `data:image/jpeg;base64,${base64Image}`; // Prepare data URL
+                base64ImageWithDetections = await imageToBase64(annotatedImage); // Convert annotated image to base64
             } catch (error) {
                 console.error('❌ Error generating annotated image:', error);
                 throw new Error('Failed to generate annotated image');
