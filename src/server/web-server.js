@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import imagesRouter from './routes/images.js';
+import eventsRouter from './routes/events.js';
 import detectRouter from './routes/detect.js';
 import detectPosesRouter from './routes/detect-poses.js';
 
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../../public')));
 
 // Routes
-app.use('/api/images', imagesRouter);
+app.use('/api/events', eventsRouter);
 app.use('/api/detect', detectRouter);
 app.use('/api/detect-poses', detectPosesRouter);
 

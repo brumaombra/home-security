@@ -106,28 +106,38 @@
             gallery.innerHTML = '<div class="loading">Loading images...</div>';
 
             try {
-                const response = await fetch('/api/images');
+                const response = await fetch('/api/events');
                 const data = await response.json();
 
-                if (data.images && data.images.length > 0) {
+                if (data.events && data.events.length > 0) {
                     gallery.innerHTML = '';
-                    data.images.forEach(imageData => {
+                    data.events.forEach(eventData => {
                         const item = document.createElement('div');
                         item.className = 'image-item';
 
                         // Use the timestamp from the API response
-                        const date = new Date(imageData.timestamp);
+                        const date = new Date(eventData.timestamp);
                         const dateStr = date.toLocaleString();
 
+                        // Extract stream ID from the data (now provided directly)
+                        const streamId = eventData.streamId || 'N/A';
+                        const detectionType = eventData.detectionType || 'unknown';
+                        const count = eventData.detectionType === 'object' ? eventData.detectionsCount : eventData.posesCount;
+                        const countLabel = eventData.detectionType === 'object' ? 'objects' : 'poses';
+
                         item.innerHTML = `
-                            <img src="/images/${imageData.filename}" alt="${imageData.filename}" loading="lazy">
-                            <div class="image-info">${dateStr}</div>
+                            <img src="/images/${eventData.imageFilename}" alt="${eventData.imageFilename}" loading="lazy">
+                            <div class="image-info">
+                                <div>${dateStr}</div>
+                                <div>Stream: ${streamId}</div>
+                                <div>${count} ${countLabel} detected</div>
+                            </div>
                         `;
 
                         gallery.appendChild(item);
                     });
                 } else {
-                    gallery.innerHTML = '<div class="error">No images found</div>';
+                    gallery.innerHTML = '<div class="error">No events found</div>';
                 }
             } catch (error) {
                 console.error('Error loading images:', error);

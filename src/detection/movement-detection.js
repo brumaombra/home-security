@@ -4,6 +4,7 @@ import { detectObjectsInImage } from '../detection/object-detection.js';
 import { detectPosesInImage } from '../detection/pose-detection.js';
 import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 import { saveBase64ImageToFile } from '../utils/utils.js';
+import { addEvent } from '../storage/storage.js';
 
 let streamStates = {}; // Object to hold state for each stream
 
@@ -72,6 +73,11 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
 const analyzeMovementImage = async ({ pngFrame, detectionType, streamId }) => {
     console.log(`🔍 Analyzing frame from ${streamId} for object detection...`);
 
+    const timestamp = Date.now();
+    let imageFilename = null;
+    let detections = [];
+    let poses = [];
+
     try {
         // Create PNG buffer from current frame
         const pngBuffer = PNG.sync.write(pngFrame);
@@ -80,15 +86,34 @@ const analyzeMovementImage = async ({ pngFrame, detectionType, streamId }) => {
         let detectionData;
         if (detectionType === 'object') {
             detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
+            detections = detectionData.detections || [];
         } else if (detectionType === 'pose') {
             detectionData = await detectPosesInImage({ imageBuffer: pngBuffer });
+            poses = detectionData.poses || [];
         }
 
         // If an annotated image is generated, save it to a file
         if (detectionData.annotatedImage) {
             console.log(`🎨 Annotated image generated from ${streamId}`);
-            saveBase64ImageToFile(detectionData.annotatedImage);
+            imageFilename = saveBase64ImageToFile(detectionData.annotatedImage, streamId);
         }
+
+        // Create event object
+        const event = {
+            id: `event_${timestamp}_${streamId}`,
+            timestamp: timestamp,
+            streamId: streamId,
+            detectionType: detectionType,
+            detectionsCount: detections.length,
+            posesCount: poses.length,
+            imageFilename: imageFilename,
+            detections: detections.slice(0, 10), // Store first 10 detections for reference
+            poses: poses.slice(0, 10) // Store first 10 poses for reference
+        };
+
+        // Save event to JSON file
+        addEvent(event);
+        console.log(`📝 Event recorded: ${detections.length || poses.length} ${detectionType}(s) detected on ${streamId}`);
     } catch (error) {
         console.error(`❌ Error in object detection for ${streamId}:`, error);
     }
