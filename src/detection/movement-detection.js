@@ -1,7 +1,6 @@
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { detectObjectsInImage } from '../detection/object-detection.js';
-import { detectPosesInImage } from '../detection/pose-detection.js';
 import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 import { saveBase64ImageToFile } from '../utils/utils.js';
 import { addEvent } from '../storage/storage.js';
@@ -9,7 +8,7 @@ import { addEvent } from '../storage/storage.js';
 let streamStates = {}; // Object to hold state for each stream
 
 // Detect movement between frames for a specific stream
-export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5, detectionType, streamId }) => {
+export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5, streamId }) => {
     // Initialize state for this stream if it doesn't exist
     if (!streamStates[streamId]) {
         streamStates[streamId] = {
@@ -57,7 +56,7 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
         } else {
             console.log(`🔍 Analyzing frame from ${streamId} after skipping...`);
             stopStreamAnalysis(streamId); // Stop further analysis for this stream to save resources
-            await analyzeMovementImage({ pngFrame, detectionType, streamId }); // Analyze the current frame for object detection
+            await analyzeMovementImage({ pngFrame, streamId }); // Analyze the current frame for object detection
             setTimeout(() => {
                 startStreamAnalysis(streamId); // Resume analysis for this stream after processing
             }, cooldownTime); // Wait before resuming
@@ -70,27 +69,20 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
 };
 
 // Analyze a single image for movement and object detection
-const analyzeMovementImage = async ({ pngFrame, detectionType, streamId }) => {
+const analyzeMovementImage = async ({ pngFrame, streamId }) => {
     console.log(`🔍 Analyzing frame from ${streamId} for object detection...`);
 
     const timestamp = Date.now();
     let imageFilename = null;
     let detections = [];
-    let poses = [];
 
     try {
         // Create PNG buffer from current frame
         const pngBuffer = PNG.sync.write(pngFrame);
 
-        // Perform the selected detection
-        let detectionData;
-        if (detectionType === 'object') {
-            detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
-            detections = detectionData.detections || [];
-        } else if (detectionType === 'pose') {
-            detectionData = await detectPosesInImage({ imageBuffer: pngBuffer });
-            poses = detectionData.poses || [];
-        }
+        // Perform object detection
+        const detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
+        detections = detectionData.detections || [];
 
         // If an annotated image is generated, save it to a file
         if (detectionData.annotatedImage) {
@@ -103,17 +95,14 @@ const analyzeMovementImage = async ({ pngFrame, detectionType, streamId }) => {
             id: `event_${timestamp}_${streamId}`,
             timestamp: timestamp,
             streamId: streamId,
-            detectionType: detectionType,
             detectionsCount: detections.length,
-            posesCount: poses.length,
             imageFilename: imageFilename,
-            detections: detections.slice(0, 10), // Store first 10 detections for reference
-            poses: poses.slice(0, 10) // Store first 10 poses for reference
+            detections: detections.slice(0, 10) // Store first 10 detections for reference
         };
 
         // Save event to JSON file
         addEvent(event);
-        console.log(`📝 Event recorded: ${detections.length || poses.length} ${detectionType}(s) detected on ${streamId}`);
+        console.log(`📝 Event recorded: ${detections.length} object(s) detected on ${streamId}`);
     } catch (error) {
         console.error(`❌ Error in object detection for ${streamId}:`, error);
     }

@@ -263,9 +263,6 @@
                 <button class="btn" id="analyzeBtn" onclick="analyzeImage()">
                     🔍 Analyze Image
                 </button>
-                <button class="btn" id="detectPosesBtn" onclick="analyzePoses()" style="margin-left: 10px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
-                    🏃 Detect Poses
-                </button>
                 <button class="btn" id="downloadBase64Btn" onclick="downloadFromBase64()" style="display: none; margin-left: 10px; background: #28a745;">
                     💾 Save as Base64
                 </button>
@@ -375,13 +372,12 @@
                     throw new Error(result.error || 'Analysis failed');
                 }
 
-                displayResults(result, 'detections');
+                displayResults(result);
                 showMessage(`Analysis complete! Found ${result.detections.length} objects.`, 'success');
                 lastAnalysisResult = result;
                 downloadBase64Btn.style.display = 'inline-block';
 
             } catch (error) {
-                console.error('Analysis error:', error);
                 showMessage(`Error: ${error.message}`, 'error');
             } finally {
                 analyzeBtn.disabled = false;
@@ -389,120 +385,42 @@
             }
         }
 
-        async function analyzePoses() {
-            if (!selectedFile) {
-                showMessage('Please select an image first.', 'error');
-                return;
-            }
-
-            const detectPosesBtn = document.getElementById('detectPosesBtn');
-            detectPosesBtn.disabled = true;
-            detectPosesBtn.innerHTML = '<div class="loading"></div>Detecting Poses...';
-            clearMessages();
-
-            try {
-                const formData = new FormData();
-                formData.append('image', selectedFile);
-                formData.append('generateImage', true);
-
-                const response = await fetch('/api/detect-poses', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.error || 'Pose detection failed');
-                }
-
-                displayResults(result, 'poses');
-                showMessage(`Pose detection complete! Found ${result.poses.length} poses.`, 'success');
-                lastAnalysisResult = result;
-                downloadBase64Btn.style.display = 'inline-block';
-
-            } catch (error) {
-                console.error('Pose detection error:', error);
-                showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                detectPosesBtn.disabled = false;
-                detectPosesBtn.innerHTML = '🏃 Detect Poses';
-            }
-        }
-
         function displayResults(result, type) {
-            document.querySelector('.results-header h3').textContent = type === 'detections' ? 'Detection Results' : 'Pose Detection Results';
+            document.querySelector('.results-header h3').textContent = 'Detection Results';
 
-            if (type === 'detections') {
-                resultsCount.textContent = `Found ${result.detections.length} objects`;
+            resultsCount.textContent = `Found ${result.detections.length} objects`;
 
-                detectionsList.innerHTML = '';
+            detectionsList.innerHTML = '';
 
-                // Display the annotated image if available
-                if (result.annotatedImage) {
-                    previewImage.src = result.annotatedImage;
-                }
-
-                result.detections.forEach((detection, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'detection-item';
-
-                    const confidence = Math.round(detection.score * 100);
-
-                    item.innerHTML = `
-                        <div class="detection-info">
-                            <div class="detection-class">${detection.class}</div>
-                            <div class="detection-details">
-                                Position: (${detection.bbox.x}, ${detection.bbox.y}) • 
-                                Size: ${detection.bbox.width}×${detection.bbox.height}
-                            </div>
-                        </div>
-                        <div class="confidence-container" style="display: flex; align-items: center;">
-                            <div class="confidence-bar">
-                                <div class="confidence-fill" style="width: ${confidence}%"></div>
-                            </div>
-                            <div class="confidence-text">${confidence}%</div>
-                        </div>
-                    `;
-
-                    detectionsList.appendChild(item);
-                });
-            } else if (type === 'poses') {
-                resultsCount.textContent = `Found ${result.poses.length} poses`;
-
-                detectionsList.innerHTML = '';
-
-                // Display the annotated image if available
-                if (result.annotatedImage) {
-                    previewImage.src = result.annotatedImage;
-                }
-
-                result.poses.forEach((pose, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'detection-item';
-
-                    const confidence = Math.round(pose.score * 100);
-
-                    const keypointsList = pose.keypoints.map(kp => `${kp.name}: (${kp.x}, ${kp.y}) ${Math.round(kp.score * 100)}%`).join('<br>');
-
-                    item.innerHTML = `
-                        <div class="detection-info">
-                            <div class="detection-class">Pose ${index + 1}</div>
-                            <div class="detection-details">
-                                ${keypointsList}
-                            </div>
-                        </div>
-                        <div class="confidence-container" style="display: flex; align-items: center;">
-                            <div class="confidence-bar">
-                                <div class="confidence-fill" style="width: ${confidence}%"></div>
-                            </div>
-                            <div class="confidence-text">${confidence}%</div>
-                        </div>
-                    `;
-
-                    detectionsList.appendChild(item);
-                });
+            // Display the annotated image if available
+            if (result.annotatedImage) {
+                previewImage.src = result.annotatedImage;
             }
+
+            result.detections.forEach((detection, index) => {
+                const item = document.createElement('div');
+                item.className = 'detection-item';
+
+                const confidence = Math.round(detection.score * 100);
+
+                item.innerHTML = `
+                    <div class="detection-info">
+                        <div class="detection-class">${detection.class}</div>
+                        <div class="detection-details">
+                            Position: (${detection.bbox.x}, ${detection.bbox.y}) • 
+                            Size: ${detection.bbox.width}×${detection.bbox.height}
+                        </div>
+                    </div>
+                    <div class="confidence-container" style="display: flex; align-items: center;">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${confidence}%"></div>
+                        </div>
+                        <div class="confidence-text">${confidence}%</div>
+                    </div>
+                `;
+
+                detectionsList.appendChild(item);
+            });
 
             resultsSection.style.display = 'block';
         }
@@ -553,7 +471,6 @@
 
                 showMessage('Image downloaded successfully from base64!', 'success');
             } catch (error) {
-                console.error('Base64 download error:', error);
                 showMessage('Failed to download image from base64.', 'error');
             }
         }

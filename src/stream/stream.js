@@ -64,7 +64,6 @@ export const startStream = async config => {
                             image: rawImage,
                             cooldownTime: 2000,
                             framesToSkip: 5,
-                            detectionType: config.detectionType,
                             streamId: streamId
                         });
                     } catch (err) {

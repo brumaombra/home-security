@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import eventsRouter from './routes/events.js';
 import detectRouter from './routes/detect.js';
-import detectPosesRouter from './routes/detect-poses.js';
 
 const app = express();
 
@@ -20,7 +19,6 @@ app.use(express.static(path.join(__dirname, '../../public')));
 // Routes
 app.use('/api/events', eventsRouter);
 app.use('/api/detect', detectRouter);
-app.use('/api/detect-poses', detectPosesRouter);
 
 // Start the server
 export const startServer = config => {

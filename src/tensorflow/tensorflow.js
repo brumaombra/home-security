@@ -1,9 +1,7 @@
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
-import * as poseDetection from '@tensorflow-models/pose-detection';
 
 let objectDetectionModel = null; // COCO-SSD model instance
-let poseDetectionModel = null; // Pose detection model instance
 
 // Initialize TensorFlow.js
 export const initTensorFlow = async () => {
@@ -29,19 +27,6 @@ export const loadObjectDetectionModel = async () => {
     }
 };
 
-// Load the pose detection model
-export const loadPoseDetectionModel = async () => {
-    try {
-        console.log('🏃 Loading pose detection model...');
-        const detectorConfig = { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER };
-        poseDetectionModel = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
-        console.log('✅ Pose detection model loaded successfully!');
-    } catch (error) {
-        console.error('❌ Error loading pose model:', error);
-        throw error;
-    }
-};
-
 // Perform object detection on the input tensor
 export const detectObjects = async inputTensor => {
     // Check if model is loaded
@@ -52,18 +37,6 @@ export const detectObjects = async inputTensor => {
     // Perform object detection
     const predictions = await objectDetectionModel.detect(inputTensor); // Inference through model
     return predictions; // Return predictions
-};
-
-// Perform pose detection on the input tensor
-export const detectPoses = async inputTensor => {
-    // Check if pose model is loaded
-    if (!poseDetectionModel) {
-        throw new Error('❌ Pose model not loaded');
-    }
-
-    // Perform pose detection
-    const poses = await poseDetectionModel.estimatePoses(inputTensor);
-    return poses; // Return poses
 };
 
 // Create a tensor from the image buffer
