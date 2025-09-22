@@ -1,6 +1,7 @@
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { detectObjectsInImage } from '../detection/object-detection.js';
+import { detectPosesInImage } from '../detection/pose-detection.js';
 import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 import { saveBase64ImageToFile } from '../utils/utils.js';
 
@@ -9,7 +10,7 @@ let isMovementDetected = false;
 let skipCounter = 0;
 
 // Detect movement between frames
-export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5 }) => {
+export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5, detectionType }) => {
     // Convert raw image to PNG format
     const pngFrame = new PNG({ width: image.width, height: image.height });
     pngFrame.data = image.data;
@@ -45,7 +46,7 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
         } else {
             console.log('🔍 Analyzing frame after skipping...');
             stopStreamAnalysis(); // Stop further analysis to save resources
-            await analyzeMovementImage({ pngFrame }); // Analyze the current frame for object detection
+            await analyzeMovementImage({ pngFrame, detectionType }); // Analyze the current frame for object detection
             setTimeout(() => {
                 startStreamAnalysis(); // Resume analysis after processing
             }, cooldownTime); // Wait before resuming
@@ -58,16 +59,24 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
 };
 
 // Analyze a single image for movement and object detection
-const analyzeMovementImage = async ({ pngFrame }) => {
+const analyzeMovementImage = async ({ pngFrame, detectionType }) => {
     console.log('🔍 Analyzing frame for object detection...');
 
     try {
         // Create PNG buffer from current frame
         const pngBuffer = PNG.sync.write(pngFrame);
 
-        // Perform object detection
-        const detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
-        console.log('🔍 Object detections:', detectionData.detections);
+        // Perform the selected detection
+        let detectionData;
+        if (detectionType === 'object') {
+            detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
+            console.log('🔍 Object detections:', detectionData.detections);
+        } else if (detectionType === 'pose') {
+            detectionData = await detectPosesInImage({ imageBuffer: pngBuffer });
+            console.log('🏃 Pose detections:', detectionData.poses);
+        }
+
+        // If an annotated image is generated, save it to a file
         if (detectionData.annotatedImage) {
             console.log('🎨 Annotated image generated');
             saveBase64ImageToFile(detectionData.annotatedImage);

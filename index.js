@@ -1,16 +1,33 @@
 import { initTensorFlow, loadObjectDetectionModel, loadPoseDetectionModel } from './src/tensorflow/tensorflow.js';
-import { startServer } from './src/server/web-server.js';
 import { startStream } from './src/stream/stream.js';
+// import { startServer } from './src/server/web-server.js';
+
+// Configuration settings
+const config = {
+    detectionType: 'pose', // 'object' or 'pose'
+    streamSourceUrl: 'http://192.168.21.117:8080/video' // URL of the MJPEG stream
+};
 
 // Initialize the app
-const initApp = async () => {
+const initApp = async config => {
     try {
         console.log('🚀 Starting the application...');
-        await initTensorFlow(); // Initialize TensorFlow.js
-        await loadObjectDetectionModel(); // Load the model
-        await startStream(); // Start the stream
-        // await loadPoseDetectionModel(); // Load the pose detection model
-        // startServer(); // Start the server
+
+        // Initialize TensorFlow.js
+        await initTensorFlow();
+
+        // Load the appropriate model based on detection type
+        if (config.detectionType === 'object') {
+            await loadObjectDetectionModel(); // Load object detection model
+        } else if (config.detectionType === 'pose') {
+            await loadPoseDetectionModel(); // Load pose detection model
+        }
+
+        // Start the stream
+        await startStream(config);
+
+        // Start the server
+        // startServer();
     } catch (error) {
         console.error('❌ Error initializing app:', error);
         process.exit(1);
@@ -18,4 +35,4 @@ const initApp = async () => {
 };
 
 // Initialize the app
-initApp();
+initApp(config);

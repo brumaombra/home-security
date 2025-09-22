@@ -22,7 +22,7 @@ export const loadObjectDetectionModel = async () => {
     try {
         console.log('📦 Loading COCO-SSD model...');
         objectDetectionModel = await cocoSsd.load(); // Load the model
-        console.log('✅ COCO-SSD model loaded successfully');
+        console.log('✅ COCO-SSD model loaded successfully!');
     } catch (error) {
         console.error('❌ Error loading model:', error);
         throw error;
@@ -33,11 +33,9 @@ export const loadObjectDetectionModel = async () => {
 export const loadPoseDetectionModel = async () => {
     try {
         console.log('🏃 Loading pose detection model...');
-        const detectorConfig = {
-            modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
-        };
+        const detectorConfig = { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER };
         poseDetectionModel = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
-        console.log('✅ Pose detection model loaded successfully');
+        console.log('✅ Pose detection model loaded successfully!');
     } catch (error) {
         console.error('❌ Error loading pose model:', error);
         throw error;

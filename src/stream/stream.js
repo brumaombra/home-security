@@ -2,14 +2,13 @@ import fetch from 'node-fetch';
 import jpeg from 'jpeg-js';
 import { detectMovement } from '../detection/movement-detection.js';
 
-const streamUrl = 'http://192.168.21.117:8080/video'; // URL of the MJPEG stream
 let analyzeStream = true; // Flag to control analysis
 
 // Initialize and start the video stream processing
-export const startStream = async () => {
+export const startStream = async config => {
     // Fetch the MJPEG stream
     console.log('📹 Starting stream...');
-    const response = await fetch(streamUrl);
+    const response = await fetch(config.streamSourceUrl);
     console.log('✅ Stream connection established successfully!');
     let buffer = Buffer.alloc(0);
 
@@ -42,13 +41,10 @@ export const startStream = async () => {
             // Extract JPEG
             const jpegFrame = buffer.subarray(jpegStart, endPos);
 
-            // Check if analysis is still enabled before processing
-            // if (!analyzeStream) break;
-
             // Decode and process
             try {
                 const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
-                await detectMovement({ image: rawImage, cooldownTime: 2000, framesToSkip: 5 });
+                await detectMovement({ image: rawImage, cooldownTime: 2000, framesToSkip: 5, detectionType: config.detectionType });
             } catch (err) {
                 console.error('❌ JPEG decode error:', err.message);
             }
