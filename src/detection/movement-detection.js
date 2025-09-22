@@ -5,23 +5,33 @@ import { detectPosesInImage } from '../detection/pose-detection.js';
 import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 import { saveBase64ImageToFile } from '../utils/utils.js';
 
-let lastFrame = null;
-let isMovementDetected = false;
-let skipCounter = 0;
+let streamStates = {}; // Object to hold state for each stream
 
-// Detect movement between frames
-export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5, detectionType }) => {
+// Detect movement between frames for a specific stream
+export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5, detectionType, streamId }) => {
+    // Initialize state for this stream if it doesn't exist
+    if (!streamStates[streamId]) {
+        streamStates[streamId] = {
+            lastFrame: null,
+            isMovementDetected: false,
+            skipCounter: 0
+        };
+    }
+
+    // Get the state for this stream
+    const state = streamStates[streamId];
+
     // Convert raw image to PNG format
     const pngFrame = new PNG({ width: image.width, height: image.height });
     pngFrame.data = image.data;
 
     // If there's a previous frame, compare it with the current one
-    if (lastFrame) {
+    if (state.lastFrame) {
         const diff = new PNG({ width: image.width, height: image.height });
 
         // Compare the two frames
         const numDiffPixels = pixelmatch(
-            lastFrame.data,
+            state.lastFrame.data,
             pngFrame.data,
             diff.data,
             image.width,
@@ -31,36 +41,36 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
 
         // If the number of different pixels exceeds a threshold, log movement
         if (numDiffPixels > 5000) {
-            if (!isMovementDetected) {
-                console.log(`🚶 Movement detected! Skipping ${framesToSkip} frames before analysis...`);
-                isMovementDetected = true;
-                skipCounter = framesToSkip;
+            if (!state.isMovementDetected) {
+                console.log(`🚶 Movement detected on ${streamId}! Skipping ${framesToSkip} frames before analysis...`);
+                state.isMovementDetected = true;
+                state.skipCounter = framesToSkip;
             }
         }
     }
 
     // Handle skipping and analysis
-    if (isMovementDetected) {
-        if (skipCounter > 0) {
-            skipCounter--; // Decrement skip counter
+    if (state.isMovementDetected) {
+        if (state.skipCounter > 0) {
+            state.skipCounter--; // Decrement skip counter
         } else {
-            console.log('🔍 Analyzing frame after skipping...');
-            stopStreamAnalysis(); // Stop further analysis to save resources
-            await analyzeMovementImage({ pngFrame, detectionType }); // Analyze the current frame for object detection
+            console.log(`🔍 Analyzing frame from ${streamId} after skipping...`);
+            stopStreamAnalysis(streamId); // Stop further analysis for this stream to save resources
+            await analyzeMovementImage({ pngFrame, detectionType, streamId }); // Analyze the current frame for object detection
             setTimeout(() => {
-                startStreamAnalysis(); // Resume analysis after processing
+                startStreamAnalysis(streamId); // Resume analysis for this stream after processing
             }, cooldownTime); // Wait before resuming
-            isMovementDetected = false; // Reset for next detection
+            state.isMovementDetected = false; // Reset for next detection
         }
     }
 
     // Update last frame
-    lastFrame = pngFrame;
+    state.lastFrame = pngFrame;
 };
 
 // Analyze a single image for movement and object detection
-const analyzeMovementImage = async ({ pngFrame, detectionType }) => {
-    console.log('🔍 Analyzing frame for object detection...');
+const analyzeMovementImage = async ({ pngFrame, detectionType, streamId }) => {
+    console.log(`🔍 Analyzing frame from ${streamId} for object detection...`);
 
     try {
         // Create PNG buffer from current frame
@@ -76,10 +86,10 @@ const analyzeMovementImage = async ({ pngFrame, detectionType }) => {
 
         // If an annotated image is generated, save it to a file
         if (detectionData.annotatedImage) {
-            console.log('🎨 Annotated image generated');
+            console.log(`🎨 Annotated image generated from ${streamId}`);
             saveBase64ImageToFile(detectionData.annotatedImage);
         }
     } catch (error) {
-        console.error('❌ Error in object detection:', error);
+        console.error(`❌ Error in object detection for ${streamId}:`, error);
     }
 };

@@ -4,8 +4,8 @@ import { startServer } from './src/server/web-server.js';
 
 // Configuration settings
 const config = {
-    detectionType: 'pose', // 'object' or 'pose'
-    streamSourceUrl: 'http://192.168.21.117:8080/video', // URL of the MJPEG stream
+    detectionType: 'object', // 'object' or 'pose'
+    streamSources: ['http://192.168.21.117:8080/video'], // Array of URLs for MJPEG streams
     serverPort: 4000 // Port for the web server
 };
 

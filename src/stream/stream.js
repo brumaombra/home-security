@@ -2,68 +2,132 @@ import fetch from 'node-fetch';
 import jpeg from 'jpeg-js';
 import { detectMovement } from '../detection/movement-detection.js';
 
-let analyzeStream = true; // Flag to control analysis
+let streams = {}; // Object to hold multiple stream states
 
-// Initialize and start the video stream processing
+// Initialize and start multiple video stream processing
 export const startStream = async config => {
-    // Fetch the MJPEG stream
-    console.log('📹 Starting stream...');
-    const response = await fetch(config.streamSourceUrl);
-    console.log('✅ Stream connection established successfully!');
-    let buffer = Buffer.alloc(0);
+    const { streamSources } = config;
 
-    // Process incoming data chunks
-    response.body.on('data', async chunk => {
-        if (!analyzeStream) return; // Skip processing if analysis is disabled
+    console.log('📹 Starting streams...');
 
-        // Append chunk to buffer
-        buffer = Buffer.concat([buffer, chunk]);
+    // Start each stream concurrently
+    const streamPromises = streamSources.map(async (streamUrl, index) => {
+        const streamId = `stream_${index}`;
+        console.log(`📹 Starting stream ${streamId} from ${streamUrl}...`);
 
-        // Get boundary from Content-Type (assuming it's set)
-        const contentType = response.headers.get('content-type');
-        const boundaryMatch = contentType.match(/boundary=(.+)/);
-        if (!boundaryMatch) return;
-        const boundary = '--' + boundaryMatch[1];
-        const boundaryBuffer = Buffer.from(boundary + '\r\n');
-        const endBoundaryBuffer = Buffer.from('\r\n' + boundary);
+        try {
+            const response = await fetch(streamUrl);
+            console.log(`✅ Stream ${streamId} connection established successfully!`);
 
-        let pos = 0;
-        while ((pos = buffer.indexOf(boundaryBuffer, pos)) !== -1) {
-            const endPos = buffer.indexOf(endBoundaryBuffer, pos + boundaryBuffer.length);
-            if (endPos === -1) break; // Incomplete part
+            // Initialize stream state
+            streams[streamId] = {
+                analyze: true,
+                buffer: Buffer.alloc(0),
+                url: streamUrl
+            };
 
-            // Find the start of JPEG data (after headers)
-            const partStart = pos + boundaryBuffer.length;
-            const headerEnd = buffer.indexOf('\r\n\r\n', partStart);
-            if (headerEnd === -1) continue;
-            const jpegStart = headerEnd + 4;
+            // Process incoming data chunks for this stream
+            response.body.on('data', async chunk => {
+                const streamState = streams[streamId];
+                if (!streamState || !streamState.analyze) return; // Skip processing if analysis is disabled
 
-            // Extract JPEG
-            const jpegFrame = buffer.subarray(jpegStart, endPos);
+                // Append chunk to buffer
+                streamState.buffer = Buffer.concat([streamState.buffer, chunk]);
 
-            // Decode and process
-            try {
-                const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
-                await detectMovement({ image: rawImage, cooldownTime: 2000, framesToSkip: 5, detectionType: config.detectionType });
-            } catch (err) {
-                console.error('❌ JPEG decode error:', err.message);
-            }
+                // Get boundary from Content-Type (assuming it's set)
+                const contentType = response.headers.get('content-type');
+                const boundaryMatch = contentType.match(/boundary=(.+)/);
+                if (!boundaryMatch) return;
+                const boundary = '--' + boundaryMatch[1];
+                const boundaryBuffer = Buffer.from(boundary + '\r\n');
+                const endBoundaryBuffer = Buffer.from('\r\n' + boundary);
 
-            // Remove processed part
-            buffer = buffer.subarray(endPos + endBoundaryBuffer.length);
-            pos = 0;
+                // Extract JPEG frames from the buffer
+                let pos = 0;
+                while ((pos = streamState.buffer.indexOf(boundaryBuffer, pos)) !== -1) {
+                    const endPos = streamState.buffer.indexOf(endBoundaryBuffer, pos + boundaryBuffer.length);
+                    if (endPos === -1) break; // Incomplete part
+
+                    // Find the start of JPEG data (after headers)
+                    const partStart = pos + boundaryBuffer.length;
+                    const headerEnd = streamState.buffer.indexOf('\r\n\r\n', partStart);
+                    if (headerEnd === -1) continue;
+                    const jpegStart = headerEnd + 4;
+
+                    // Extract JPEG
+                    const jpegFrame = streamState.buffer.subarray(jpegStart, endPos);
+
+                    // Decode and process
+                    try {
+                        const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
+                        await detectMovement({
+                            image: rawImage,
+                            cooldownTime: 2000,
+                            framesToSkip: 5,
+                            detectionType: config.detectionType,
+                            streamId: streamId
+                        });
+                    } catch (err) {
+                        console.error(`❌ JPEG decode error for ${streamId}:`, err.message);
+                    }
+
+                    // Remove processed part
+                    streamState.buffer = streamState.buffer.subarray(endPos + endBoundaryBuffer.length);
+                    pos = 0;
+                }
+            });
+
+            // Handle stream end
+            response.body.on('end', () => {
+                console.log(`🛑 Stream ${streamId} ended`);
+                delete streams[streamId];
+            });
+
+            // Handle stream errors
+            response.body.on('error', (err) => {
+                console.error(`❌ Stream ${streamId} error:`, err.message);
+                delete streams[streamId];
+            });
+        } catch (error) {
+            console.error(`❌ Failed to start stream ${streamId}:`, error.message);
         }
     });
+
+    // Wait for all streams to be initialized
+    await Promise.allSettled(streamPromises);
+    console.log('📹 All streams initialized!');
 };
 
-// Start the video stream analysis
-export const startStreamAnalysis = () => {
-    analyzeStream = true; // Flag to start analysis
-    console.log('📹 Stream analysis started!');
+// Start the video stream analysis for all streams or a specific stream
+export const startStreamAnalysis = (streamId = null) => {
+    if (streamId) {
+        if (streams[streamId]) {
+            streams[streamId].analyze = true;
+            console.log(`📹 Stream analysis started for ${streamId}!`);
+        } else {
+            console.warn(`⚠️ Stream ${streamId} not found`);
+        }
+    } else {
+        Object.keys(streams).forEach(id => {
+            streams[id].analyze = true;
+        });
+        console.log('📹 Stream analysis started for all streams!');
+    }
 };
 
-// Stop the video stream analysis
-export const stopStreamAnalysis = () => {
-    analyzeStream = false; // Flag to stop analysis
-    console.log('🛑 Stream analysis stopped!');
+// Stop the video stream analysis for all streams or a specific stream
+export const stopStreamAnalysis = (streamId = null) => {
+    if (streamId) {
+        if (streams[streamId]) {
+            streams[streamId].analyze = false;
+            console.log(`🛑 Stream analysis stopped for ${streamId}!`);
+        } else {
+            console.warn(`⚠️ Stream ${streamId} not found`);
+        }
+    } else {
+        Object.keys(streams).forEach(id => {
+            streams[id].analyze = false;
+        });
+        console.log('🛑 Stream analysis stopped for all streams!');
+    }
 };
