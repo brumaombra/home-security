@@ -1,10 +1,14 @@
+import dotenv from 'dotenv';
 import { initTensorFlow, loadObjectDetectionModel } from './src/tensorflow/tensorflow.js';
 import { startStream } from './src/stream/stream.js';
 import { startServer } from './src/server/web-server.js';
 
+// Load environment variables from .env file
+dotenv.config();
+
 // Configuration settings
 const config = {
-    serverPort: 4000, // Port for the web server
+    serverPort: process.env.SERVER_PORT, // Port for the web server
     streamSources: [ // Array of URLs for MJPEG streams
         'http://192.168.21.117:8080/video',
         'http://192.168.21.144:8080/video',
@@ -12,9 +16,24 @@ const config = {
     ]
 };
 
+// Check the env variables
+const checkEnvVariables = () => {
+    const requiredEnvVars = ['SERVER_PORT'];
+    requiredEnvVars.forEach(varName => {
+        if (!process.env[varName]) {
+            console.error(`❌ ${varName} is not defined in environment variables.`);
+            process.exit(1);
+        }
+    });
+};
+
 // Initialize the app
 const initApp = async config => {
     try {
+        // Check environment variables
+        checkEnvVariables();
+
+        // Start the application
         console.log('🚀 Starting the application...');
         await initTensorFlow(); // Initialize TensorFlow.js
         await loadObjectDetectionModel(); // Load the object detection model
