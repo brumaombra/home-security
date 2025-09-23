@@ -36,7 +36,7 @@ export const processImage = async ({ imageBuffer, resize = false, maxWidth = 102
 // Draw bounding boxes and labels on image
 export const drawDetections = async (image, predictions) => {
     try {
-        console.log(`🎨 Drawing detections on image: ${image.width}x${image.height}, ${predictions.length} predictions`);
+        console.log(`Drawing detections on image: ${image.width}x${image.height}, ${predictions.length} predictions`);
 
         // Get image buffer
         const imageBuffer = await image.getBuffer('image/png');
@@ -94,10 +94,10 @@ export const drawDetections = async (image, predictions) => {
         const annotatedBuffer = canvas.toBuffer('image/png');
         const annotatedImage = await Jimp.read(annotatedBuffer);
 
-        console.log(`✅ Drawing complete. Annotated image dimensions: ${annotatedImage.width}x${annotatedImage.height}`);
+        console.log(`Drawing complete. Annotated image dimensions: ${annotatedImage.width}x${annotatedImage.height}`);
         return annotatedImage;
     } catch (error) {
-        console.error('❌ Error drawing detections:', error);
+        console.error('Error drawing detections:', error);
         throw error;
     }
 };

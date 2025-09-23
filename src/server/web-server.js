@@ -23,6 +23,6 @@ app.use('/api/detect', detectRouter);
 // Start the server
 export const startServer = config => {
     app.listen(config.serverPort, () => {
-        console.log(`🚀 Server running on port ${config.serverPort}`);
+        console.log(`Server running on port ${config.serverPort}!`);
     });
 };

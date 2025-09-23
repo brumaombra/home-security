@@ -13,10 +13,10 @@ export const saveBase64ImageToFile = (base64Image, streamId = null) => {
         const streamSuffix = streamId ? `_${streamId}` : '';
         const filename = `detection_${timestamp}${streamSuffix}.jpg`;
         fs.writeFileSync(`public/images/${filename}`, base64Image, 'base64');
-        console.log(`💾 Saved detection image: ${filename}`);
+        console.log(`Saved detection image: ${filename}`);
         return filename;
     } catch (error) {
-        console.error('❌ Error saving detection image:', error);
+        console.error('Error saving detection image:', error);
         throw error;
     }
 };

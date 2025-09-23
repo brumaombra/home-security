@@ -6,11 +6,11 @@ let objectDetectionModel = null; // COCO-SSD model instance
 // Initialize TensorFlow.js
 export const initTensorFlow = async () => {
     try {
-        console.log('🤖 Initializing TensorFlow...');
+        console.log('Initializing TensorFlow...');
         await tf.ready(); // Ensure TensorFlow.js is ready
-        console.log('✅ TensorFlow is ready!');
+        console.log('TensorFlow is ready!');
     } catch (error) {
-        console.error('❌ Error initializing TensorFlow:', error);
+        console.error('Error initializing TensorFlow:', error);
         throw error;
     }
 };
@@ -18,11 +18,11 @@ export const initTensorFlow = async () => {
 // Load the COCO-SSD model
 export const loadObjectDetectionModel = async () => {
     try {
-        console.log('📦 Loading COCO-SSD model...');
+        console.log('Loading COCO-SSD model...');
         objectDetectionModel = await cocoSsd.load(); // Load the model
-        console.log('✅ COCO-SSD model loaded successfully!');
+        console.log('COCO-SSD model loaded successfully!');
     } catch (error) {
-        console.error('❌ Error loading model:', error);
+        console.error('Error loading model:', error);
         throw error;
     }
 };
@@ -31,7 +31,7 @@ export const loadObjectDetectionModel = async () => {
 export const detectObjects = async inputTensor => {
     // Check if model is loaded
     if (!objectDetectionModel) {
-        throw new Error('❌ Model not loaded');
+        throw new Error('Model not loaded');
     }
 
     // Perform object detection

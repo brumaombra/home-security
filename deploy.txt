@@ -1,0 +1,4 @@
+git archive --format=tar --output=deploy.tar HEAD
+scp deploy.tar pi@raspberry.local:~/projects/
+ssh pi@raspberry.local "rm -rf ~/projects/home-security && mkdir ~/projects/home-security && tar -xf ~/projects/deploy.tar -C ~/projects/home-security && rm ~/projects/deploy.tar"
+del deploy.tar

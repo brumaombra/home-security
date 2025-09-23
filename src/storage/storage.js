@@ -12,7 +12,7 @@ export const loadEvents = () => {
         // If file doesn't exist, return empty array
         return [];
     } catch (error) {
-        console.error('❌ Error loading events:', error);
+        console.error('Error loading events:', error);
         return [];
     }
 };
@@ -21,9 +21,9 @@ export const loadEvents = () => {
 export const saveEvents = events => {
     try {
         fs.writeFileSync('events.json', JSON.stringify(events, null, 2));
-        console.log(`💾 Saved ${events.length} events to events.json`);
+        console.log(`Saved ${events.length} events to events.json`);
     } catch (error) {
-        console.error('❌ Error saving events:', error);
+        console.error('Error saving events:', error);
         throw error;
     }
 };

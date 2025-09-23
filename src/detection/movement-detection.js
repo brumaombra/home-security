@@ -42,7 +42,7 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
         // If the number of different pixels exceeds a threshold, log movement
         if (numDiffPixels > 5000) {
             if (!state.isMovementDetected) {
-                console.log(`🚶 Movement detected on ${streamId}! Skipping ${framesToSkip} frames before analysis...`);
+                console.log(`Movement detected on ${streamId}! Skipping ${framesToSkip} frames before analysis...`);
                 state.isMovementDetected = true;
                 state.skipCounter = framesToSkip;
             }
@@ -54,7 +54,7 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
         if (state.skipCounter > 0) {
             state.skipCounter--; // Decrement skip counter
         } else {
-            console.log(`🔍 Analyzing frame from ${streamId} after skipping...`);
+            console.log(`Analyzing frame from ${streamId} after skipping...`);
             stopStreamAnalysis(streamId); // Stop further analysis for this stream to save resources
             await analyzeMovementImage({ pngFrame, streamId }); // Analyze the current frame for object detection
             setTimeout(() => {
@@ -70,7 +70,7 @@ export const detectMovement = async ({ image, cooldownTime = 0, framesToSkip = 5
 
 // Analyze a single image for movement and object detection
 const analyzeMovementImage = async ({ pngFrame, streamId }) => {
-    console.log(`🔍 Analyzing frame from ${streamId} for object detection...`);
+    console.log(`Analyzing frame from ${streamId} for object detection...`);
 
     const timestamp = Date.now();
     let imageFilename = null;
@@ -86,7 +86,7 @@ const analyzeMovementImage = async ({ pngFrame, streamId }) => {
 
         // If an annotated image is generated, save it to a file
         if (detectionData.annotatedImage) {
-            console.log(`🎨 Annotated image generated from ${streamId}`);
+            console.log(`Annotated image generated from ${streamId}`);
             imageFilename = saveBase64ImageToFile(detectionData.annotatedImage, streamId);
         }
 
@@ -102,8 +102,8 @@ const analyzeMovementImage = async ({ pngFrame, streamId }) => {
 
         // Save event to JSON file
         addEvent(event);
-        console.log(`📝 Event recorded: ${detections.length} object(s) detected on ${streamId}`);
+        console.log(`Event recorded: ${detections.length} object(s) detected on ${streamId}`);
     } catch (error) {
-        console.error(`❌ Error in object detection for ${streamId}:`, error);
+        console.error(`Error in object detection for ${streamId}:`, error);
     }
 };

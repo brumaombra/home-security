@@ -8,7 +8,7 @@ export const detectObjectsInImage = async ({ imageBuffer, generateImage = true }
         const { tensor, width, height, originalImage } = await processImage({ imageBuffer: imageBuffer, resize: true }); // Process the uploaded image
         const predictions = await detectObjects(tensor); // Perform object detection
         tensor.dispose(); // Clean up tensor to free memory
-        console.log(`🔍 Found ${predictions.length} objects`);
+        console.log(`Found ${predictions.length} objects`);
 
         // Format the results
         const results = predictions.map(prediction => ({
@@ -26,11 +26,11 @@ export const detectObjectsInImage = async ({ imageBuffer, generateImage = true }
         let base64ImageWithDetections = null;
         if (generateImage) {
             try {
-                console.log('🎨 Generating annotated image with detections');
+                console.log('Generating annotated image with detections...');
                 const annotatedImage = await drawDetections(originalImage, predictions); // Draw detections on image
                 base64ImageWithDetections = await imageToBase64(annotatedImage); // Convert annotated image to base64
             } catch (error) {
-                console.error('❌ Error generating annotated image:', error);
+                console.error('Error generating annotated image:', error);
                 throw new Error('Failed to generate annotated image');
             }
         }
@@ -45,7 +45,7 @@ export const detectObjectsInImage = async ({ imageBuffer, generateImage = true }
             annotatedImage: base64ImageWithDetections
         };
     } catch (error) {
-        console.error('❌ Error processing image for object detection:', error);
+        console.error('Error processing image for object detection:', error);
         throw error;
     }
 };

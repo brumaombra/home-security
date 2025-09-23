@@ -8,16 +8,16 @@ let streams = {}; // Object to hold multiple stream states
 export const startStream = async config => {
     const { streamSources } = config;
 
-    console.log('📹 Starting streams...');
+    console.log('Starting streams...');
 
     // Start each stream concurrently
     const streamPromises = streamSources.map(async (streamUrl, index) => {
         const streamId = `stream_${index}`;
-        console.log(`📹 Starting stream ${streamId} from ${streamUrl}...`);
+        console.log(`Starting stream ${streamId} from ${streamUrl}...`);
 
         try {
             const response = await fetch(streamUrl);
-            console.log(`✅ Stream ${streamId} connection established successfully!`);
+            console.log(`Stream ${streamId} connection established successfully!`);
 
             // Initialize stream state
             streams[streamId] = {
@@ -67,7 +67,7 @@ export const startStream = async config => {
                             streamId: streamId
                         });
                     } catch (err) {
-                        console.error(`❌ JPEG decode error for ${streamId}:`, err.message);
+                        console.error(`JPEG decode error for ${streamId}:`, err.message);
                     }
 
                     // Remove processed part
@@ -78,17 +78,17 @@ export const startStream = async config => {
 
             // Handle stream end
             response.body.on('end', () => {
-                console.log(`🛑 Stream ${streamId} ended`);
+                console.log(`Stream ${streamId} ended`);
                 delete streams[streamId];
             });
 
             // Handle stream errors
             response.body.on('error', (err) => {
-                console.error(`❌ Stream ${streamId} error:`, err.message);
+                console.error(`Stream ${streamId} error:`, err.message);
                 delete streams[streamId];
             });
         } catch (error) {
-            console.error(`❌ Failed to start stream ${streamId}:`, error.message);
+            console.error(`Failed to start stream ${streamId}:`, error.message);
             throw error;
         }
     });
@@ -99,12 +99,12 @@ export const startStream = async config => {
     // Check if all streams failed
     const allFailed = results.every(result => result.status === 'rejected');
     if (allFailed) {
-        console.error('❌ All streams failed to initialize!');
+        console.error('All streams failed to initialize!');
         throw new Error('All streams failed to initialize!');
     }
 
     // Success message
-    console.log('📹 All streams initialized!');
+    console.log('All streams initialized!');
 };
 
 // Start the video stream analysis for all streams or a specific stream
@@ -112,15 +112,15 @@ export const startStreamAnalysis = (streamId = null) => {
     if (streamId) {
         if (streams[streamId]) {
             streams[streamId].analyze = true;
-            console.log(`📹 Stream analysis started for ${streamId}!`);
+            console.log(`Stream analysis started for ${streamId}!`);
         } else {
-            console.warn(`⚠️ Stream ${streamId} not found`);
+            console.warn(`Stream ${streamId} not found!`);
         }
     } else {
         Object.keys(streams).forEach(id => {
             streams[id].analyze = true;
         });
-        console.log('📹 Stream analysis started for all streams!');
+        console.log('Stream analysis started for all streams!');
     }
 };
 
@@ -129,14 +129,14 @@ export const stopStreamAnalysis = (streamId = null) => {
     if (streamId) {
         if (streams[streamId]) {
             streams[streamId].analyze = false;
-            console.log(`🛑 Stream analysis stopped for ${streamId}!`);
+            console.log(`Stream analysis stopped for ${streamId}!`);
         } else {
-            console.warn(`⚠️ Stream ${streamId} not found`);
+            console.warn(`Stream ${streamId} not found!`);
         }
     } else {
         Object.keys(streams).forEach(id => {
             streams[id].analyze = false;
         });
-        console.log('🛑 Stream analysis stopped for all streams!');
+        console.log('Stream analysis stopped for all streams!');
     }
 };

@@ -10,9 +10,9 @@ dotenv.config();
 const config = {
     serverPort: process.env.SERVER_PORT, // Port for the web server
     streamSources: [ // Array of URLs for MJPEG streams
-        'http://192.168.21.117:8080/video',
-        'http://192.168.21.144:8080/video',
-        'http://192.168.21.102:8080/video'
+        'http://192.168.21.117:8080/video'
+        // 'http://192.168.21.144:8080/video',
+        // 'http://192.168.21.102:8080/video'
     ]
 };
 
@@ -21,7 +21,7 @@ const checkEnvVariables = () => {
     const requiredEnvVars = ['SERVER_PORT'];
     requiredEnvVars.forEach(varName => {
         if (!process.env[varName]) {
-            console.error(`❌ ${varName} is not defined in environment variables.`);
+            console.error(`${varName} is not defined in environment variables!`);
             process.exit(1);
         }
     });
@@ -34,13 +34,13 @@ const initApp = async config => {
         checkEnvVariables();
 
         // Start the application
-        console.log('🚀 Starting the application...');
+        console.log('Starting the application...');
         await initTensorFlow(); // Initialize TensorFlow.js
         await loadObjectDetectionModel(); // Load the object detection model
         await startStream(config); // Start the stream
         startServer(config); // Start the server
     } catch (error) {
-        console.error('❌ Error initializing app:', error);
+        console.error('Error initializing app:', error);
         process.exit(1);
     }
 };
