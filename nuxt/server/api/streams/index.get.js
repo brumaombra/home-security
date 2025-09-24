@@ -3,9 +3,9 @@ import { callVideoService } from '~/server/utils/utils.js';
 
 export default defineEventHandler(async () => {
     try {
-        const results = await callVideoService('/api/events');
+        const results = await callVideoService('/api/streams');
         return results || []; // Return the results
     } catch (error) {
-        handleNuxtErrorMessages({ error, message: 'Error loading events' });
+        handleNuxtErrorMessages({ error, message: 'Error loading streams' });
     }
 });
