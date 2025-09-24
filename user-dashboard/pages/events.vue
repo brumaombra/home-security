@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import PageTitle from '~/components/ui/PageTitle.vue';
 import EventsList from '~/components/events/EventsList.vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
@@ -30,14 +31,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">🏠 Home Security Events</h1>
-                <p class="text-lg text-gray-600">View all detected events from your home security system</p>
-            </div>
+    <div class="max-w-7xl mx-auto">
+        <!-- Page title -->
+        <PageTitle title="Home Security Events" subtitle="View all detected events from your home security system" icon="fas fa-shield-alt" />
 
-            <EventsList :events="globalStore.events" :loading="loading" :error="error" />
-        </div>
+        <!-- Events list -->
+        <EventsList :events="globalStore.events" :loading="loading" :error="error" />
     </div>
 </template>

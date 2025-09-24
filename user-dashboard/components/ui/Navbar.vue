@@ -40,7 +40,7 @@ const toggleMenu = () => {
                     <!-- Desktop menu -->
                     <div class="hidden md:ml-8 md:flex md:items-center md:space-x-1">
                         <template v-for="link in navLinks" :key="link.to">
-                            <NuxtLink :to="link.to" class="relative px-4 py-2 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-bruma-green bg-gray-100/80 dark:bg-gray-100/10">
+                            <NuxtLink :to="link.to" class="relative px-4 py-2 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-blue-600 bg-gray-100/80 dark:bg-gray-100/10">
                                 {{ link.label }}
                             </NuxtLink>
                         </template>
@@ -53,7 +53,7 @@ const toggleMenu = () => {
         <div class="md:hidden overflow-hidden transition-all duration-300 ease-in-out" :class="{ 'max-h-[500px] opacity-100': isOpen, 'max-h-0 opacity-0': !isOpen }">
             <div class="px-4 pt-2 pb-3 space-y-1.5 bg-white dark:bg-gray-800">
                 <template v-for="link in navLinks" :key="link.to">
-                    <NuxtLink :to="link.to" @click="toggleMenu" class="block px-4 py-4 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-bruma-green bg-gray-100/80 dark:bg-gray-100/10">
+                    <NuxtLink :to="link.to" @click="toggleMenu" class="block px-4 py-4 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-blue-600 bg-gray-100/80 dark:bg-gray-100/10">
                         {{ link.label }}
                     </NuxtLink>
                 </template>
