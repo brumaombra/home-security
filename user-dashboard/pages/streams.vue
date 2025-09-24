@@ -85,7 +85,7 @@ onMounted(async () => {
         </div>
 
         <!-- Streams list -->
-        <StreamsList :streams="globalStore.streams.results" :loading="loading && globalStore.streams.results.length === 0" :error="error" />
+        <StreamsList :streams="globalStore.streams.results" :loading="loading && globalStore.streams.results.length === 0" :error="error" @restart-success="loadStreams" />
 
         <!-- Load more button -->
         <LoadMoreButton v-if="globalStore.streams.pagination.hasMore"

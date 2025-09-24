@@ -7,6 +7,14 @@ const props = defineProps({
     loading: { type: Boolean, default: false },
     error: { type: String, default: null }
 });
+
+// Emits
+const emit = defineEmits(['restart-success']);
+
+// Handle restart success from child component
+const handleRestartSuccess = () => {
+    emit('restart-success');
+};
 </script>
 
 <template>
@@ -28,7 +36,7 @@ const props = defineProps({
 
         <!-- Streams grid -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <StreamCard v-for="stream in streams" :key="stream.streamId" :stream="stream" />
+            <StreamCard v-for="stream in streams" :key="stream.streamId" :stream="stream" @restart-success="handleRestartSuccess" />
         </div>
     </div>
 </template>
