@@ -9,8 +9,8 @@ dotenv.config();
 const config = {
     serverPort: process.env.SERVER_PORT, // Port for the web server
     streamSources: [ // Array of URLs for MJPEG streams
-        'http://192.168.21.117:8080/video',
-        'http://192.168.21.112:8080/video'
+        'http://192.168.21.117:8080/video'
+        // 'http://192.168.21.112:8080/video'
         // 'http://192.168.21.102:8080/video'
     ]
 };

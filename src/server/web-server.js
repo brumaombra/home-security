@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import eventsRouter from './routes/events.js';
 import detectRouter from './routes/detect.js';
+import streamsRouter from './routes/streams.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, '../../public')));
 // Routes
 app.use('/api/events', eventsRouter);
 app.use('/api/detect', detectRouter);
+app.use('/api/streams', streamsRouter);
 
 // Start the server
 export const startServer = config => {

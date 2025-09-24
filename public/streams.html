@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Security Streams</title>
+    <link rel="stylesheet" href="style/style.css">
+    <style>
+        .streams {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .stream-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .stream-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stream-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .stream-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.active {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .status.inactive {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="streams.html">Streams</a>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Home Security Streams</h1>
+            <p>View the status of all video streams</p>
+        </div>
+        <div class="content">
+            <div id="streams" class="streams"></div>
+        </div>
+    </div>
+
+    <script>
+        const streamsContainer = document.getElementById('streams');
+
+        async function loadStreams() {
+            streamsContainer.innerHTML = '<div class="loading">Loading streams...</div>';
+
+            try {
+                const response = await fetch('/api/streams');
+                const data = await response.json();
+
+                if (data.streams && data.streams.length > 0) {
+                    streamsContainer.innerHTML = '';
+                    data.streams.forEach(stream => {
+                        const item = document.createElement('div');
+                        item.className = 'stream-item';
+
+                        const statusClass = stream.status === 'active' ? 'active' : 'inactive';
+
+                        item.innerHTML = `
+                            <h3>${stream.streamId}</h3>
+                            <p><strong>URL:</strong> ${stream.streamUrl}</p>
+                            <p><strong>Status:</strong> <span class="status ${statusClass}">${stream.status}</span></p>
+                        `;
+
+                        streamsContainer.appendChild(item);
+                    });
+                } else {
+                    streamsContainer.innerHTML = '<div class="error">No streams found</div>';
+                }
+            } catch (error) {
+                streamsContainer.innerHTML = '<div class="error">Failed to load streams</div>';
+            }
+        }
+
+        // Load streams when page loads
+        loadStreams();
+    </script>
+</body>
+
+</html>

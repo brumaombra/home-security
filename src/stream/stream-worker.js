@@ -87,6 +87,7 @@ const initWorker = async (streamUrl, streamId) => {
         // Handle stream end
         response.body.on('end', () => {
             console.log(`Stream ${streamId} ended`);
+            process.exit(0); // Exit worker
         });
 
         // Handle stream errors

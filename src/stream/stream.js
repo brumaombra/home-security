@@ -1,7 +1,7 @@
 import { fork } from 'child_process';
 import { addEvent } from '../storage/storage.js';
 
-let workers = []; // Keep track of workers
+let streams = []; // Keep track of streams
 
 // Start a worker process for every stream
 export const startStreamWorkers = async config => {
@@ -9,6 +9,14 @@ export const startStreamWorkers = async config => {
     config.streamSources?.forEach((streamUrl, index) => {
         const streamId = `stream_${index}`;
         const worker = fork('./src/stream/stream-worker.js', [], { stdio: 'inherit' });
+
+        // Create stream object with initial status
+        const stream = {
+            streamId,
+            streamUrl,
+            status: 'active',
+            worker
+        };
 
         // Send initial message to worker
         worker.send({ streamUrl, streamId });
@@ -21,12 +29,30 @@ export const startStreamWorkers = async config => {
             }
         });
 
-        // Keep track of workers
-        workers.push(worker);
+        // Handle worker exit
+        worker.on('exit', code => {
+            console.log(`Worker for ${streamId} exited with code ${code}`);
+            stream.status = 'inactive';
+        });
+
+        // Handle worker disconnect
+        worker.on('disconnect', () => {
+            console.log(`Worker for ${streamId} disconnected`);
+            stream.status = 'inactive';
+        });
+
+        // Handle worker error
+        worker.on('error', error => {
+            console.error(`Worker for ${streamId} error:`, error);
+            stream.status = 'inactive';
+        });
+
+        // Keep track of streams
+        streams.push(stream);
     });
 };
 
-// Get the list of active workers
-export const getActiveWorkers = () => {
-    return workers;
+// Get the list of streams with status
+export const getStreams = () => {
+    return streams;
 };
