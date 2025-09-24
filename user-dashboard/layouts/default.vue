@@ -3,7 +3,7 @@ import Navbar from '~/components/ui/Navbar.vue';
 </script>
 
 <template>
-    <div class="flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div class="flex flex-col min-h-screen bg-gray-50">
         <!-- Navbar -->
         <Navbar />
 

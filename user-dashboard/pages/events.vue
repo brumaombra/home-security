@@ -1,17 +1,19 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useGlobalStore } from '~/composables/stores/useGlobalStore';
 
-const events = ref([]);
+const globalStore = useGlobalStore();
 const loading = ref(true);
 const error = ref(null);
 const modalOpen = ref(false);
 const selectedImage = ref('');
 
+// Load the events
 const loadEvents = async () => {
     try {
         loading.value = true;
-        const data = await $fetch('/api/events');
-        events.value = data || [];
+        const results = await $fetch('/api/events');
+        globalStore.value.events = results || [];
     } catch (e) {
         error.value = e.message || 'Failed to load events';
     } finally {
@@ -19,23 +21,29 @@ const loadEvents = async () => {
     }
 };
 
-const openModal = (imageSrc) => {
+// Open the modal with the selected image
+const openImageModal = imageSrc => {
     selectedImage.value = imageSrc;
     modalOpen.value = true;
 };
 
-const closeModal = () => {
+// Close the modal
+const closeImageModal = () => {
     modalOpen.value = false;
     selectedImage.value = '';
 };
 
+// On component mounted
 onMounted(() => {
-    loadEvents();
+    // Check if events are already loaded
+    if (!globalStore.value.events.length) {
+        loadEvents(); // Load events
+    }
 });
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 py-8">
+    <div class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-gray-900 mb-2">🏠 Home Security Events</h1>
@@ -50,12 +58,12 @@ onMounted(() => {
                 <div class="text-xl text-red-500">{{ error }}</div>
             </div>
 
-            <div v-else-if="events.length === 0" class="text-center py-12">
+            <div v-else-if="globalStore.events.length === 0" class="text-center py-12">
                 <div class="text-xl text-gray-500">No events found</div>
             </div>
 
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                <div v-for="event in events" :key="event.id" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" @click="openModal(`/images/${event.imageFilename}`)">
+                <div v-for="event in globalStore.events" :key="event.id" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" @click="openImageModal(`/images/${event.imageFilename}`)">
                     <img :src="`/images/${event.imageFilename}`" :alt="event.imageFilename" class="w-full h-48 object-cover" loading="lazy" />
                     <div class="p-4">
                         <div class="text-sm text-gray-500 mb-1">
@@ -73,7 +81,7 @@ onMounted(() => {
         </div>
 
         <!-- Modal -->
-        <div v-if="modalOpen" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50" @click="closeModal">
+        <div v-if="modalOpen" class="fixed inset-0 bg-gray-800/80 flex items-center justify-center z-50" @click="closeImageModal">
             <img :src="selectedImage" alt="Event image" class="max-w-90 max-h-90 object-contain" @click.stop />
         </div>
     </div>
