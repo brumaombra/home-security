@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStreams } from '../../stream/stream.js';
+import { getStreams, restartStream } from '../../stream/stream.js';
 
 const router = express.Router();
 
@@ -29,6 +29,18 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.error('Error loading streams:', error);
         res.status(500).json({ error: 'Unable to load streams' });
+    }
+});
+
+// Endpoint to restart a specific stream
+router.post('/restart/:streamId', async (req, res) => {
+    try {
+        const { streamId } = req.params;
+        const stream = restartStream(streamId);
+        res.json({ message: `Stream ${streamId} restarted successfully`, stream });
+    } catch (error) {
+        console.error('Error restarting stream:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

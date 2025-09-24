@@ -56,3 +56,54 @@ export const startStreamWorkers = async config => {
 export const getStreams = () => {
     return streams;
 };
+
+// Restart a specific stream
+export const restartStream = (streamId) => {
+    const stream = streams.find(s => s.streamId === streamId);
+    if (!stream) {
+        throw new Error(`Stream ${streamId} not found`);
+    }
+
+    // Kill existing worker
+    if (stream.worker) {
+        stream.worker.kill();
+    }
+
+    // Create new worker
+    const worker = fork('./src/stream/stream-worker.js', [], { stdio: 'inherit' });
+
+    // Update stream object
+    stream.worker = worker;
+    stream.status = 'active';
+
+    // Send initial message to worker
+    worker.send({ streamUrl: stream.streamUrl, streamId });
+
+    // Handle messages from worker
+    worker.on('message', message => {
+        if (message.type === 'event') {
+            addEvent(message.event); // Store event in main process
+            console.log(`Event recorded from ${streamId}: ${message.event.detectionsCount} object(s) detected`);
+        }
+    });
+
+    // Handle worker exit
+    worker.on('exit', code => {
+        console.log(`Worker for ${streamId} exited with code ${code}`);
+        stream.status = 'inactive';
+    });
+
+    // Handle worker disconnect
+    worker.on('disconnect', () => {
+        console.log(`Worker for ${streamId} disconnected`);
+        stream.status = 'inactive';
+    });
+
+    // Handle worker error
+    worker.on('error', error => {
+        console.error(`Worker for ${streamId} error:`, error);
+        stream.status = 'inactive';
+    });
+
+    return stream;
+};
