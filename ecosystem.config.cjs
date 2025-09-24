@@ -2,8 +2,8 @@ module.exports = {
     apps: [
         {
             name: 'home-security',
-            exec_mode: 'cluster',
-            instances: 'max',
+            exec_mode: 'fork',
+            instances: 1,
             script: './index.js',
             env: {
                 SERVER_PORT: 3000
