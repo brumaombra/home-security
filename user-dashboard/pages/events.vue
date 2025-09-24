@@ -1,19 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useGlobalStore } from '~/composables/stores/useGlobalStore';
+import EventsList from '~/components/events/EventsList.vue';
+import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();
-const loading = ref(true);
+const loading = ref(false);
 const error = ref(null);
-const modalOpen = ref(false);
-const selectedImage = ref('');
 
 // Load the events
 const loadEvents = async () => {
     try {
         loading.value = true;
         const results = await $fetch('/api/events');
-        globalStore.value.events = results || [];
+        globalStore.value.events = results.events || [];
     } catch (e) {
         error.value = e.message || 'Failed to load events';
     } finally {
@@ -21,22 +20,10 @@ const loadEvents = async () => {
     }
 };
 
-// Open the modal with the selected image
-const openImageModal = imageSrc => {
-    selectedImage.value = imageSrc;
-    modalOpen.value = true;
-};
-
-// Close the modal
-const closeImageModal = () => {
-    modalOpen.value = false;
-    selectedImage.value = '';
-};
-
 // On component mounted
 onMounted(() => {
     // Check if events are already loaded
-    if (!globalStore.value.events.length) {
+    if (globalStore.value.events.length === 0) {
         loadEvents(); // Load events
     }
 });
@@ -50,39 +37,7 @@ onMounted(() => {
                 <p class="text-lg text-gray-600">View all detected events from your home security system</p>
             </div>
 
-            <div v-if="loading" class="text-center py-12">
-                <div class="text-xl text-gray-500">Loading events...</div>
-            </div>
-
-            <div v-else-if="error" class="text-center py-12">
-                <div class="text-xl text-red-500">{{ error }}</div>
-            </div>
-
-            <div v-else-if="globalStore.events.length === 0" class="text-center py-12">
-                <div class="text-xl text-gray-500">No events found</div>
-            </div>
-
-            <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                <div v-for="event in globalStore.events" :key="event.id" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" @click="openImageModal(`/images/${event.imageFilename}`)">
-                    <img :src="`/images/${event.imageFilename}`" :alt="event.imageFilename" class="w-full h-48 object-cover" loading="lazy" />
-                    <div class="p-4">
-                        <div class="text-sm text-gray-500 mb-1">
-                            {{ new Date(event.timestamp).toLocaleString() }}
-                        </div>
-                        <div class="text-sm text-gray-600 mb-1">
-                            Stream: {{ event.streamId }}
-                        </div>
-                        <div class="text-sm text-gray-700">
-                            {{ event.detectionsCount }} objects detected
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div v-if="modalOpen" class="fixed inset-0 bg-gray-800/80 flex items-center justify-center z-50" @click="closeImageModal">
-            <img :src="selectedImage" alt="Event image" class="max-w-90 max-h-90 object-contain" @click.stop />
+            <EventsList :events="globalStore.events" :loading="loading" :error="error" />
         </div>
     </div>
 </template>

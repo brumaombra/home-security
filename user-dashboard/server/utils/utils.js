@@ -3,7 +3,9 @@ import { handleError } from '~/server/utils/error.js';
 // Call the main video streaming service
 export const callVideoService = async (url, options = {}) => {
     try {
-        const fullUrl = `http://localhost:3001${url}`;
+        const runtimeConfig = useRuntimeConfig();
+        const baseUrl = runtimeConfig.public.videoServiceBaseUrl;
+        const fullUrl = `${baseUrl}${url}`;
         const response = await $fetch(fullUrl, options);
         return response;
     } catch (error) {
