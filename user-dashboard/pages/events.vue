@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import EventsList from '~/components/events/EventsList.vue';
+import Button from '~/components/ui/Button.vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();
@@ -34,6 +35,11 @@ onMounted(() => {
     <div class="max-w-7xl mx-auto">
         <!-- Page title -->
         <PageTitle title="Home Security Events" subtitle="View all detected events from your home security system" icon="fas fa-shield-alt" />
+
+        <!-- Refresh button -->
+        <div class="flex justify-end mb-6">
+            <Button text="Refresh" type="primary" :disabled="loading" icon="fas fa-sync" @click="loadEvents" />
+        </div>
 
         <!-- Events list -->
         <EventsList :events="globalStore.events" :loading="loading" :error="error" />

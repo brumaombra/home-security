@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import StreamsList from '~/components/streams/StreamsList.vue';
+import Button from '~/components/ui/Button.vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();
@@ -34,6 +35,11 @@ onMounted(() => {
     <div class="max-w-7xl mx-auto">
         <!-- Page title -->
         <PageTitle title="Home Security Streams" subtitle="View all live streams from your home security system" icon="fas fa-video" />
+
+        <!-- Refresh button -->
+        <div class="flex justify-end mb-6">
+            <Button text="Refresh" type="primary" :disabled="loading" icon="fas fa-sync" @click="loadStreams" />
+        </div>
 
         <!-- Streams list -->
         <StreamsList :streams="globalStore.streams" :loading="loading" :error="error" />
