@@ -1,6 +1,5 @@
 <script setup>
 import Navbar from '~/components/ui/Navbar.vue';
-import Footer from '~/components/ui/Footer.vue';
 </script>
 
 <template>
@@ -15,7 +14,7 @@ import Footer from '~/components/ui/Footer.vue';
             </div>
 
             <!-- Footer -->
-            <Footer />
+            <!-- <Footer /> -->
         </div>
     </div>
 </template>

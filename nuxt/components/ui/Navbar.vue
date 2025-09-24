@@ -1,21 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
-import LanguageSelector from '~/components/ui/LanguageSelector.vue';
-import ThemeSelector from '~/components/ui/ThemeSelector.vue';
 
-const { t } = useI18n();
 const isOpen = ref(false);
 
 // Navigation links
 const navLinks = computed(() => [
-    { to: '/categories/ant-keeping-basics', label: t('navigation.antKeepingBasics') },
-    { to: '/categories/care-guides', label: t('navigation.careGuides') },
-    { to: '/categories/podcasts', label: t('navigation.podcasts') },
-    { to: '/categories/product-reviews', label: t('navigation.productReviews') },
-    { to: '/categories/tutorials', label: t('navigation.tutorials') },
-    { to: '/categories/various', label: t('navigation.various') },
-    { to: '/links', label: t('navigation.links') }
+    { to: '/', label: 'Home' },
+    { to: '/events', label: 'Events' },
+    { to: '/streams', label: 'Streams' }
 ]);
 
 // Toggle mobile menu
@@ -31,7 +23,7 @@ const toggleMenu = () => {
                 <!-- Mobile menu button -->
                 <div class="flex items-center md:hidden">
                     <button type="button" @click="toggleMenu" class="inline-flex items-center justify-center rounded-xl w-10 h-10 text-gray-500 dark:text-gray-300 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <span class="sr-only">{{ t('common.openMainMenu') }}</span>
+                        <span class="sr-only">Open main menu</span>
 
                         <!-- Hamburger icon -->
                         <i :class="[isOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars', 'text-lg transition-transform duration-300 ease-in-out', { 'rotate-180': isOpen }]" />
@@ -41,27 +33,18 @@ const toggleMenu = () => {
                 <!-- Logo and Desktop menu -->
                 <div class="flex flex-1 items-center ms-3 md:ms-0 md:items-stretch md:justify-start">
                     <!-- Logo -->
-                    <NuxtLinkLocale to="/" class="flex items-center">
-                        <NuxtImg src="/images/bruma-ants-logo.png" :alt="t('common.logoAlt')" height="44" width="44" loading="lazy" class="transform transition-all duration-300 hover:scale-105" />
-                    </NuxtLinkLocale>
+                    <NuxtLink to="/" class="flex items-center">
+                        <img src="/images/bruma-ants-logo.png" alt="Bruma Ants Logo" height="44" width="44" loading="lazy" class="transform transition-all duration-300 hover:scale-105" />
+                    </NuxtLink>
 
                     <!-- Desktop menu -->
                     <div class="hidden md:ml-8 md:flex md:items-center md:space-x-1">
                         <template v-for="link in navLinks" :key="link.to">
-                            <NuxtLinkLocale :to="link.to" class="relative px-4 py-2 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-bruma-green bg-gray-100/80 dark:bg-gray-100/10">
+                            <NuxtLink :to="link.to" class="relative px-4 py-2 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-bruma-green bg-gray-100/80 dark:bg-gray-100/10">
                                 {{ link.label }}
-                            </NuxtLinkLocale>
+                            </NuxtLink>
                         </template>
                     </div>
-                </div>
-
-                <!-- Right section -->
-                <div class="flex items-center gap-3 ms-auto">
-                    <!-- Theme selector -->
-                    <ThemeSelector />
-
-                    <!-- Language selector -->
-                    <LanguageSelector />
                 </div>
             </div>
         </div>
@@ -70,9 +53,9 @@ const toggleMenu = () => {
         <div class="md:hidden overflow-hidden transition-all duration-300 ease-in-out" :class="{ 'max-h-[500px] opacity-100': isOpen, 'max-h-0 opacity-0': !isOpen }">
             <div class="px-4 pt-2 pb-3 space-y-1.5 bg-white dark:bg-gray-800">
                 <template v-for="link in navLinks" :key="link.to">
-                    <NuxtLinkLocale :to="link.to" @click="toggleMenu" class="block px-4 py-4 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-bruma-green bg-gray-100/80 dark:bg-gray-100/10">
+                    <NuxtLink :to="link.to" @click="toggleMenu" class="block px-4 py-4 text-md font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl transition-all duration-300 hover:bg-gray-100/80 dark:hover:bg-white/20" active-class="!font-bold text-bruma-green bg-gray-100/80 dark:bg-gray-100/10">
                         {{ link.label }}
-                    </NuxtLinkLocale>
+                    </NuxtLink>
                 </template>
             </div>
         </div>
