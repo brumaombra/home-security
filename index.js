@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
-import { initTensorFlow, loadObjectDetectionModel } from './src/tensorflow/tensorflow.js';
-import { startStream } from './src/stream/stream.js';
+import { startStreamWorkers } from './src/stream/stream.js';
 import { startServer } from './src/server/web-server.js';
 
 // Load environment variables from .env file
@@ -35,9 +34,7 @@ const initApp = async config => {
 
         // Start the application
         console.log('Starting the application...');
-        await initTensorFlow(); // Initialize TensorFlow.js
-        await loadObjectDetectionModel(); // Load the object detection model
-        await startStream(config); // Start the stream
+        await startStreamWorkers(config); // Start stream workers
         startServer(config); // Start the server
     } catch (error) {
         console.error('Error initializing app:', error);
