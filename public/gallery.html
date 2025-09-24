@@ -121,9 +121,8 @@
 
                         // Extract stream ID from the data (now provided directly)
                         const streamId = eventData.streamId || 'N/A';
-                        const detectionType = eventData.detectionType || 'unknown';
-                        const count = eventData.detectionType === 'object' ? eventData.detectionsCount : eventData.posesCount;
-                        const countLabel = eventData.detectionType === 'object' ? 'objects' : 'poses';
+                        const count = eventData.detectionsCount;
+                        const countLabel = 'objects';
 
                         item.innerHTML = `
                             <img src="/images/${eventData.imageFilename}" alt="${eventData.imageFilename}" loading="lazy">
@@ -159,9 +158,6 @@
 
         // Load images when page loads
         loadImages();
-
-        // Refresh every 30 seconds
-        setInterval(loadImages, 30000);
     </script>
 </body>
 
