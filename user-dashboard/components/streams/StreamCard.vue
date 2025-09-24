@@ -44,13 +44,13 @@ const getStatusInfo = status => {
         </div>
 
         <!-- Details -->
-        <div class="pt-6">
+        <div class="pt-6 space-y-4">
             <!-- Stream name/ID -->
-            <div class="flex items-center text-sm font-medium text-slate-600 mb-4">
+            <div class="flex items-center text-sm font-medium text-slate-600">
                 <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
                     <i class="fas fa-video text-white text-xs"></i>
                 </div>
-                Stream {{ stream.streamId }}
+                Stream: {{ stream.streamId }}
             </div>
 
             <!-- Stream URL -->

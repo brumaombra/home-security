@@ -28,9 +28,9 @@ const handleClick = () => {
         </div>
 
         <!-- Details -->
-        <div class="pt-6">
+        <div class="pt-6 space-y-4">
             <!-- Date and time -->
-            <div class="flex items-center text-sm font-medium text-slate-600 mb-4 group-hover:text-slate-800 transition-colors duration-300">
+            <div class="flex items-center text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors duration-300">
                 <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
                     <i class="fas fa-calendar-alt text-white text-xs"></i>
                 </div>
@@ -38,7 +38,7 @@ const handleClick = () => {
             </div>
 
             <!-- Stream ID -->
-            <div class="flex items-center text-sm font-medium text-slate-600 mb-4 group-hover:text-slate-800 transition-colors duration-300">
+            <div class="flex items-center text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors duration-300">
                 <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
                     <i class="fas fa-video text-white text-xs"></i>
                 </div>

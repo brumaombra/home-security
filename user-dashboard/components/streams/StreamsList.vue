@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue';
 import StreamCard from '~/components/streams/StreamCard.vue';
 
 // Props
