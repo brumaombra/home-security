@@ -4,7 +4,9 @@ import path from 'path';
 // Load events from events.json
 export const loadEvents = async () => {
     try {
-        const filePath = path.join(process.cwd(), 'events.json');
+        // Define the file path
+        const filePath = path.join(process.cwd(), 'public', 'events.json');
+
         // Check if file exists
         if (fs.existsSync(filePath)) {
             const data = await fs.promises.readFile(filePath, 'utf8');
@@ -22,7 +24,7 @@ export const loadEvents = async () => {
 // Save events to events.json
 export const saveEvents = async events => {
     try {
-        const filePath = path.join(process.cwd(), 'events.json');
+        const filePath = path.join(process.cwd(), 'public', 'events.json');
         await fs.promises.writeFile(filePath, JSON.stringify(events, null, 2));
         console.log(`Saved ${events.length} events to events.json`);
     } catch (error) {
