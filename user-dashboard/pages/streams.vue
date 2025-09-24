@@ -13,8 +13,8 @@ const error = ref(null);
 const loadStreams = async () => {
     try {
         loading.value = true;
-        const results = await $fetch('/api/streams');
-        globalStore.value.streams = results.streams || [];
+        const result = await $fetch('/api/streams');
+        globalStore.value.streams = result;
     } catch (e) {
         error.value = e.message || 'Failed to load streams';
     } finally {
@@ -42,6 +42,6 @@ onMounted(() => {
         </div>
 
         <!-- Streams list -->
-        <StreamsList :streams="globalStore.streams" :loading="loading" :error="error" />
+        <StreamsList :streams="globalStore.streams.results" :loading="loading" :error="error" />
     </div>
 </template>

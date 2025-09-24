@@ -13,8 +13,8 @@ const error = ref(null);
 const loadEvents = async () => {
     try {
         loading.value = true;
-        const results = await $fetch('/api/events');
-        globalStore.value.events = results.events || [];
+        const result = await $fetch('/api/events');
+        globalStore.value.events = result;
     } catch (e) {
         error.value = e.message || 'Failed to load events';
     } finally {
@@ -42,6 +42,6 @@ onMounted(() => {
         </div>
 
         <!-- Events list -->
-        <EventsList :events="globalStore.events" :loading="loading" :error="error" />
+        <EventsList :events="globalStore.events.results" :loading="loading" :error="error" />
     </div>
 </template>
