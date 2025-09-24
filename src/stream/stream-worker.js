@@ -22,9 +22,12 @@ process.on('message', async message => {
 const initWorker = async (streamUrl, streamId) => {
     try {
         console.log(`Worker starting for ${streamId} from ${streamUrl}...`);
-        await initTensorFlow();
-        await loadObjectDetectionModel();
 
+        // Initialize TensorFlow and load model
+        await initTensorFlow(streamId);
+        await loadObjectDetectionModel(streamId);
+
+        // Connect to MJPEG stream
         const response = await fetch(streamUrl);
         console.log(`Stream ${streamId} connection established successfully!`);
 
