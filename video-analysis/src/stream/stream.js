@@ -3,52 +3,57 @@ import { addEvent } from '../storage/storage.js';
 
 let streams = []; // Keep track of streams
 
+// Helper function to create and setup a worker for a stream
+const createWorkerForStream = stream => {
+    // Fork a new worker process
+    const worker = fork('./src/stream/stream-worker.js', [], { stdio: 'inherit' });
+
+    // Send initial message to worker
+    worker.send({ streamUrl: stream.streamUrl, streamId: stream.streamId });
+
+    // Handle messages from worker
+    worker.on('message', message => {
+        if (message.type === 'event') {
+            addEvent(message.event); // Store event in main process
+            console.log(`Event recorded from ${stream.streamId}: ${message.event.detectionsCount} object(s) detected`);
+        }
+    });
+
+    // Handle worker exit
+    worker.on('exit', code => {
+        console.log(`Worker for ${stream.streamId} exited with code ${code}`);
+        stream.status = 'inactive';
+    });
+
+    // Handle worker disconnect
+    worker.on('disconnect', () => {
+        console.log(`Worker for ${stream.streamId} disconnected`);
+        stream.status = 'inactive';
+    });
+
+    // Handle worker error
+    worker.on('error', error => {
+        console.error(`Worker for ${stream.streamId} error:`, error);
+        stream.status = 'inactive';
+    });
+
+    return worker;
+};
+
 // Start a worker process for every stream
 export const startStreamWorkers = async config => {
     // Spawn workers for each stream
     config.streamSources?.forEach((streamUrl, index) => {
-        const streamId = `stream_${index}`;
-        const worker = fork('./src/stream/stream-worker.js', [], { stdio: 'inherit' });
-
         // Create stream object with initial status
         const stream = {
-            streamId,
-            streamUrl,
-            status: 'active',
-            worker
+            streamId: `stream_${index}`,
+            streamUrl: streamUrl,
+            status: 'active'
         };
 
-        // Send initial message to worker
-        worker.send({ streamUrl, streamId });
-
-        // Handle messages from worker
-        worker.on('message', message => {
-            if (message.type === 'event') {
-                addEvent(message.event); // Store event in main process
-                console.log(`Event recorded from ${streamId}: ${message.event.detectionsCount} object(s) detected`);
-            }
-        });
-
-        // Handle worker exit
-        worker.on('exit', code => {
-            console.log(`Worker for ${streamId} exited with code ${code}`);
-            stream.status = 'inactive';
-        });
-
-        // Handle worker disconnect
-        worker.on('disconnect', () => {
-            console.log(`Worker for ${streamId} disconnected`);
-            stream.status = 'inactive';
-        });
-
-        // Handle worker error
-        worker.on('error', error => {
-            console.error(`Worker for ${streamId} error:`, error);
-            stream.status = 'inactive';
-        });
-
-        // Keep track of streams
-        streams.push(stream);
+        // Create worker and assign to stream
+        stream.worker = createWorkerForStream(stream);
+        streams.push(stream); // Keep track of streams
     });
 };
 
@@ -58,7 +63,8 @@ export const getStreams = () => {
 };
 
 // Restart a specific stream
-export const restartStream = (streamId) => {
+export const restartStream = streamId => {
+    // Find the stream
     const stream = streams.find(s => s.streamId === streamId);
     if (!stream) {
         throw new Error(`Stream ${streamId} not found`);
@@ -69,41 +75,10 @@ export const restartStream = (streamId) => {
         stream.worker.kill();
     }
 
-    // Create new worker
-    const worker = fork('./src/stream/stream-worker.js', [], { stdio: 'inherit' });
-
-    // Update stream object
-    stream.worker = worker;
+    // Create new worker and update stream
+    stream.worker = createWorkerForStream(stream);
     stream.status = 'active';
 
-    // Send initial message to worker
-    worker.send({ streamUrl: stream.streamUrl, streamId });
-
-    // Handle messages from worker
-    worker.on('message', message => {
-        if (message.type === 'event') {
-            addEvent(message.event); // Store event in main process
-            console.log(`Event recorded from ${streamId}: ${message.event.detectionsCount} object(s) detected`);
-        }
-    });
-
-    // Handle worker exit
-    worker.on('exit', code => {
-        console.log(`Worker for ${streamId} exited with code ${code}`);
-        stream.status = 'inactive';
-    });
-
-    // Handle worker disconnect
-    worker.on('disconnect', () => {
-        console.log(`Worker for ${streamId} disconnected`);
-        stream.status = 'inactive';
-    });
-
-    // Handle worker error
-    worker.on('error', error => {
-        console.error(`Worker for ${streamId} error:`, error);
-        stream.status = 'inactive';
-    });
-
+    // Return updated stream
     return stream;
 };
