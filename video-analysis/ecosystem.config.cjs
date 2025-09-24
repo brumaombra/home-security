@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: 'home-security',
+            name: 'security-video',
             exec_mode: 'fork',
             instances: 1,
             script: './index.js',
