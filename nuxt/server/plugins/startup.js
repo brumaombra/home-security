@@ -17,6 +17,6 @@ const initServices = async () => {
     try {
         // Start the services
     } catch (error) {
-        handleError({ error, errorMessage: 'Error initializing services', throwError: true });
+        handleError({ error, message: 'Error initializing services', throwError: true });
     }
 };
