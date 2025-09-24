@@ -1,10 +1,21 @@
 <script setup>
 import Card from '~/components/ui/Card.vue';
+import Button from '~/components/ui/Button.vue';
 
 // Props
 const props = defineProps({
     stream: { type: Object, required: true }
 });
+
+// Restart stream
+const restartStream = async () => {
+    try {
+        const response = await $fetch(`/api/streams/restart/${props.stream.streamId}`, { method: 'POST' }); // Call the restart API
+        alert(response.message); // Show success message
+    } catch (error) {
+        alert(`Error restarting stream: ${error.message}`);
+    }
+};
 
 // Get status formatting info
 const getStatusInfo = status => {
@@ -60,6 +71,11 @@ const getStatusInfo = status => {
                 </div>
                 <a :href="stream.streamUrl" target="_blank" class="text-blue-600 hover:text-blue-800 truncate">{{ stream.streamUrl }}</a>
             </div>
+        </div>
+
+        <!-- Restart button -->
+        <div class="w-full mt-6">
+            <Button text="Restart Stream" type="primary" icon="fas fa-redo" class="w-full" @click="restartStream" />
         </div>
     </Card>
 </template>
