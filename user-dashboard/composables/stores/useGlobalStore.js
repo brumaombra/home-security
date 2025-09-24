@@ -5,10 +5,11 @@ export const useGlobalStore = () => useState('global', () => ({
     events: {
         results: [],
         pagination: {
+            total: 0,
             currentPage: 1,
             totalPages: 1,
-            total: 0,
-            limit: 10
+            limit: 10,
+            hasMore: false
         }
     },
 
@@ -16,10 +17,11 @@ export const useGlobalStore = () => useState('global', () => ({
     streams: {
         results: [],
         pagination: {
+            total: 0,
             currentPage: 1,
             totalPages: 1,
-            total: 0,
-            limit: 10
+            limit: 10,
+            hasMore: false
         }
     }
 }));
