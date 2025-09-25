@@ -10,8 +10,11 @@ export const setBusy = busy => {
 // Create the images URL
 export const getImageUrl = filename => {
     const runtimeConfig = useRuntimeConfig();
-    const baseUrl = runtimeConfig.public.videoServiceBaseUrl;
-    return `${baseUrl}/images/${filename}`;
+    const port = runtimeConfig.public.videoServicePort;
+    const currentUrl = window.location.origin; // Get current URL origin
+    const url = new URL(currentUrl);
+    url.port = port; // Change to video service port
+    return `${url.origin}/images/${filename}`;
 };
 
 // Show the message toast

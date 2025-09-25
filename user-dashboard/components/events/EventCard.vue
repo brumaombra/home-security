@@ -21,7 +21,7 @@ const handleClick = () => {
     <Card class="cursor-pointer hover:shadow-2xl hover:scale-102 transition-all duration-400 group overflow-hidden relative" @click="handleClick">
         <!-- Image -->
         <div class="relative">
-            <img :src="getImageUrl(event.imageFilename)" :alt="event.imageFilename" class="w-full aspect-video object-cover rounded-2xl" loading="lazy" />
+            <img :src="getImageUrl(event.imageFilename)" :alt="event.imageFilename" class="w-full h-48 object-cover rounded-2xl" loading="lazy" />
             <div class="absolute top-3 right-3 bg-black/30 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 delay-100">
                 <i class="fas fa-expand text-white text-sm"></i>
             </div>
