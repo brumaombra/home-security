@@ -9,11 +9,16 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(['restart-success']);
+const emit = defineEmits(['restart-success', 'delete-success']);
 
 // Handle restart success from child component
 const handleRestartSuccess = () => {
     emit('restart-success');
+};
+
+// Handle delete success from child component
+const handleDeleteSuccess = () => {
+    emit('delete-success');
 };
 </script>
 
@@ -36,7 +41,7 @@ const handleRestartSuccess = () => {
 
         <!-- Streams grid -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <StreamCard v-for="stream in streams" :key="stream.streamId" :stream="stream" @restart-success="handleRestartSuccess" />
+            <StreamCard v-for="stream in streams" :key="stream.streamId" :stream="stream" @restart-success="handleRestartSuccess" @delete-success="handleDeleteSuccess" />
         </div>
     </div>
 </template>

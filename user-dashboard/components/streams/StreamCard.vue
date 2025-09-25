@@ -9,7 +9,7 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(['restart-success']);
+const emit = defineEmits(['restart-success', 'delete-success']);
 
 // Computed for icon class
 const iconClass = computed(() => {
@@ -76,7 +76,7 @@ const getStatusInfo = status => {
 // Restart stream
 const restartStream = async () => {
     try {
-        await $fetch(`/api/streams/restart/${props.stream.streamId}`, { method: 'POST' }); // Call the restart API
+        await $fetch(`/api/streams/${props.stream.streamId}/restart`, { method: 'POST' }); // Call the restart API
         emit('restart-success'); // Notify parent to refresh streams
     } catch (error) {
         alert(`Error restarting stream: ${error.message}`);
@@ -86,10 +86,23 @@ const restartStream = async () => {
 // Stop stream
 const stopStream = async () => {
     try {
-        await $fetch(`/api/streams/stop/${props.stream.streamId}`, { method: 'POST' }); // Call the stop API
+        await $fetch(`/api/streams/${props.stream.streamId}/stop`, { method: 'POST' }); // Call the stop API
         emit('restart-success'); // Notify parent to refresh streams
     } catch (error) {
         alert(`Error stopping stream: ${error.message}`);
+    }
+};
+
+// Delete stream
+const deleteStream = async () => {
+    if (!confirm(`Are you sure you want to delete stream ${props.stream.streamId}?`)) {
+        return;
+    }
+    try {
+        await $fetch(`/api/streams/${props.stream.streamId}`, { method: 'DELETE' }); // Call the delete API
+        emit('delete-success'); // Notify parent to refresh streams
+    } catch (error) {
+        alert(`Error deleting stream: ${error.message}`);
     }
 };
 </script>
@@ -133,6 +146,7 @@ const stopStream = async () => {
         <!-- Action buttons -->
         <div class="w-full mt-6 space-y-2">
             <Button :text="buttonConfig.text" :type="buttonConfig.type" :icon="buttonConfig.icon" :disabled="buttonConfig.disabled" class="w-full" @click="buttonConfig.action" />
+            <Button text="Delete Stream" type="danger" icon="fas fa-trash" class="w-full" @click="deleteStream" />
         </div>
     </Card>
 </template>

@@ -132,3 +132,52 @@ export const stopStream = streamId => {
     // Return updated stream
     return stream;
 };
+
+// Create a new stream
+export const createStream = streamUrl => {
+    // Generate a unique streamId
+    const streamId = `stream_${Date.now()}`;
+
+    // Create stream object with initial status
+    const stream = {
+        streamId: streamId,
+        streamUrl: streamUrl,
+        status: 'starting'
+    };
+
+    try {
+        stream.worker = createWorkerForStream(stream); // Create worker and assign to stream
+    } catch (error) {
+        console.error(`Failed to start worker for ${stream.streamId}:`, error);
+        stream.status = 'inactive';
+    }
+
+    // Add to streams array
+    streams.push(stream);
+
+    // Return the new stream
+    return stream;
+};
+
+// Delete a specific stream
+export const deleteStream = streamId => {
+    // Find the stream index
+    const streamIndex = streams.findIndex(s => s.streamId === streamId);
+    if (streamIndex === -1) {
+        throw new Error(`Stream ${streamId} not found`);
+    }
+
+    const stream = streams[streamIndex];
+
+    // Kill existing worker if active
+    if (stream.worker) {
+        stream.worker.kill();
+        stream.worker = null; // Clear the worker reference
+    }
+
+    // Remove from streams array
+    streams.splice(streamIndex, 1);
+
+    // Return the deleted stream info
+    return { streamId, streamUrl: stream.streamUrl };
+};
