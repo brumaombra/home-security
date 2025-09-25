@@ -27,6 +27,16 @@ const restartStream = async () => {
     }
 };
 
+// Stop stream
+const stopStream = async () => {
+    try {
+        await $fetch(`/api/streams/stop/${props.stream.streamId}`, { method: 'POST' }); // Call the stop API
+        emit('restart-success'); // Notify parent to refresh streams
+    } catch (error) {
+        alert(`Error stopping stream: ${error.message}`);
+    }
+};
+
 // Get status formatting info
 const getStatusInfo = status => {
     const baseClasses = 'px-3 py-1 rounded-full text-xs font-bold uppercase';
@@ -86,9 +96,10 @@ const getStatusInfo = status => {
             </div>
         </div>
 
-        <!-- Restart button -->
-        <div class="w-full mt-6">
-            <Button text="Restart Stream" type="primary" icon="fas fa-redo" class="w-full" @click="restartStream" />
+        <!-- Action buttons -->
+        <div class="w-full mt-6 space-y-2">
+            <Button v-if="props.stream.status === 'active'" text="Stop Stream" type="danger" icon="fas fa-stop" class="w-full" @click="stopStream" />
+            <Button v-else text="Restart" type="primary" icon="fas fa-redo" class="w-full" @click="restartStream" />
         </div>
     </Card>
 </template>

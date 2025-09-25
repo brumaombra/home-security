@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStreams, restartStream } from '../../stream/stream.js';
+import { getStreams, restartStream, stopStream } from '../../stream/stream.js';
 
 const router = express.Router();
 
@@ -40,6 +40,18 @@ router.post('/restart/:streamId', async (req, res) => {
         res.json({ message: `Stream ${streamId} restarted successfully`, stream });
     } catch (error) {
         console.error('Error restarting stream:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Endpoint to stop a specific stream
+router.post('/stop/:streamId', async (req, res) => {
+    try {
+        const { streamId } = req.params;
+        const stream = stopStream(streamId);
+        res.json({ message: `Stream ${streamId} stopped successfully`, stream });
+    } catch (error) {
+        console.error('Error stopping stream:', error);
         res.status(500).json({ error: error.message });
     }
 });

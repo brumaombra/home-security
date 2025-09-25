@@ -82,3 +82,24 @@ export const restartStream = streamId => {
     // Return updated stream
     return stream;
 };
+
+// Stop a specific stream
+export const stopStream = streamId => {
+    // Find the stream
+    const stream = streams.find(s => s.streamId === streamId);
+    if (!stream) {
+        throw new Error(`Stream ${streamId} not found`);
+    }
+
+    // Kill existing worker
+    if (stream.worker) {
+        stream.worker.kill();
+        stream.worker = null; // Clear the worker reference
+    }
+
+    // Update status
+    stream.status = 'inactive';
+
+    // Return updated stream
+    return stream;
+};
