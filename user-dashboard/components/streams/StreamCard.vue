@@ -17,6 +17,62 @@ const iconClass = computed(() => {
     return props.stream?.status === 'inactive' ? `${base} fa-video-slash` : `${base} fa-video`;
 });
 
+// Computed for button config
+const buttonConfig = computed(() => {
+    if (props.stream.status === 'starting') {
+        return {
+            text: 'Starting...',
+            type: 'secondary',
+            icon: 'fas fa-spinner fa-spin',
+            disabled: true,
+            action: null
+        };
+    } else if (props.stream.status === 'active') {
+        return {
+            text: 'Stop Stream',
+            type: 'danger',
+            icon: 'fas fa-stop',
+            disabled: false,
+            action: stopStream
+        };
+    } else {
+        return {
+            text: 'Restart',
+            type: 'primary',
+            icon: 'fas fa-redo',
+            disabled: false,
+            action: restartStream
+        };
+    }
+});
+
+// Get status formatting info
+const getStatusInfo = status => {
+    const baseClasses = 'px-3 py-1 rounded-full text-xs font-bold uppercase';
+    switch (status) {
+        case 'active':
+            return {
+                classes: `${baseClasses} bg-green-100 text-green-800`,
+                text: 'active'
+            };
+        case 'inactive':
+            return {
+                classes: `${baseClasses} bg-red-100 text-red-800`,
+                text: 'inactive'
+            };
+        case 'starting':
+            return {
+                classes: `${baseClasses} bg-yellow-100 text-yellow-800`,
+                text: 'starting'
+            };
+        default:
+            return {
+                classes: `${baseClasses} bg-yellow-100 text-yellow-800`,
+                text: status || 'unknown'
+            };
+    }
+};
+
 // Restart stream
 const restartStream = async () => {
     try {
@@ -34,28 +90,6 @@ const stopStream = async () => {
         emit('restart-success'); // Notify parent to refresh streams
     } catch (error) {
         alert(`Error stopping stream: ${error.message}`);
-    }
-};
-
-// Get status formatting info
-const getStatusInfo = status => {
-    const baseClasses = 'px-3 py-1 rounded-full text-xs font-bold uppercase';
-    switch (status) {
-        case 'active':
-            return {
-                classes: `${baseClasses} bg-green-100 text-green-800`,
-                text: 'active'
-            };
-        case 'inactive':
-            return {
-                classes: `${baseClasses} bg-red-100 text-red-800`,
-                text: 'inactive'
-            };
-        default:
-            return {
-                classes: `${baseClasses} bg-yellow-100 text-yellow-800`,
-                text: status || 'unknown'
-            };
     }
 };
 </script>
@@ -98,8 +132,7 @@ const getStatusInfo = status => {
 
         <!-- Action buttons -->
         <div class="w-full mt-6 space-y-2">
-            <Button v-if="props.stream.status === 'active'" text="Stop Stream" type="danger" icon="fas fa-stop" class="w-full" @click="stopStream" />
-            <Button v-else text="Restart" type="primary" icon="fas fa-redo" class="w-full" @click="restartStream" />
+            <Button :text="buttonConfig.text" :type="buttonConfig.type" :icon="buttonConfig.icon" :disabled="buttonConfig.disabled" class="w-full" @click="buttonConfig.action" />
         </div>
     </Card>
 </template>

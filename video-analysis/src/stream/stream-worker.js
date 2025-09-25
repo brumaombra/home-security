@@ -31,6 +31,9 @@ const initWorker = async (streamUrl, streamId) => {
         const response = await fetch(streamUrl);
         console.log(`Stream ${streamId} connection established successfully!`);
 
+        // Notify parent that connection is successful
+        process.send({ type: 'connected', streamId });
+
         // Initialize stream state
         streamState = {
             analyze: true,

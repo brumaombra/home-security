@@ -16,25 +16,40 @@ const createWorkerForStream = stream => {
         if (message.type === 'event') {
             addEvent(message.event); // Store event in main process
             console.log(`Event recorded from ${stream.streamId}: ${message.event.detectionsCount} object(s) detected`);
+        } else if (message.type === 'connected') {
+            console.log(`Stream ${stream.streamId} connected successfully`);
+            stream.status = 'active';
         }
     });
 
     // Handle worker exit
     worker.on('exit', code => {
         console.log(`Worker for ${stream.streamId} exited with code ${code}`);
-        stream.status = 'inactive';
+
+        // Update stream status only if it was active or starting
+        if (stream.status === 'active' || stream.status === 'starting') {
+            stream.status = 'inactive';
+        }
     });
 
     // Handle worker disconnect
     worker.on('disconnect', () => {
         console.log(`Worker for ${stream.streamId} disconnected`);
-        stream.status = 'inactive';
+
+        // Update stream status only if it was active or starting
+        if (stream.status === 'active' || stream.status === 'starting') {
+            stream.status = 'inactive';
+        }
     });
 
     // Handle worker error
     worker.on('error', error => {
         console.error(`Worker for ${stream.streamId} error:`, error);
-        stream.status = 'inactive';
+
+        // Update stream status only if it was active or starting
+        if (stream.status === 'active' || stream.status === 'starting') {
+            stream.status = 'inactive';
+        }
     });
 
     return worker;
@@ -48,12 +63,18 @@ export const startStreamWorkers = async config => {
         const stream = {
             streamId: `stream_${index}`,
             streamUrl: streamUrl,
-            status: 'active'
+            status: 'starting'
         };
 
-        // Create worker and assign to stream
-        stream.worker = createWorkerForStream(stream);
-        streams.push(stream); // Keep track of streams
+        try {
+            stream.worker = createWorkerForStream(stream); // Create worker and assign to stream
+        } catch (error) {
+            console.error(`Failed to start worker for ${stream.streamId}:`, error);
+            stream.status = 'inactive';
+        }
+
+        // Keep track of streams
+        streams.push(stream);
     });
 };
 
@@ -73,11 +94,19 @@ export const restartStream = streamId => {
     // Kill existing worker
     if (stream.worker) {
         stream.worker.kill();
+        stream.worker = null; // Clear the worker reference
     }
 
-    // Create new worker and update stream
-    stream.worker = createWorkerForStream(stream);
-    stream.status = 'active';
+    // Set status to starting
+    stream.status = 'starting';
+
+    try {
+        stream.worker = createWorkerForStream(stream); // Create new worker and update stream
+    } catch (error) {
+        console.error(`Failed to restart worker for ${stream.streamId}:`, error);
+        stream.status = 'inactive';
+        throw error; // Re-throw to let API handle
+    }
 
     // Return updated stream
     return stream;
