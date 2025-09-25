@@ -72,6 +72,11 @@ const downloadFromBase64 = () => {
     // Download the annotated image
     downloadBase64Image(results.value.annotatedImage, selectedFile.value.name || 'image.jpg');
 };
+
+// Page metadata
+useHead({
+    title: 'Home Security - Object Recognition'
+});
 </script>
 
 <template>

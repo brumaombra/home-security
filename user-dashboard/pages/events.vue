@@ -71,12 +71,17 @@ onMounted(async () => {
         loading.value = false;
     }
 });
+
+// Page metadata
+useHead({
+    title: 'Home Security - Events'
+});
 </script>
 
 <template>
     <div class="max-w-7xl mx-auto">
         <!-- Page title -->
-        <PageTitle title="Home Security Events" subtitle="View all detected events from your home security system" icon="fas fa-shield-alt" />
+        <PageTitle title="Events" subtitle="View all detected events from your home security system" icon="fas fa-shield-alt" />
 
         <!-- Refresh button -->
         <div class="flex justify-end mb-6">

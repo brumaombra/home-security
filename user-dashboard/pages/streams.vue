@@ -108,12 +108,17 @@ onMounted(async () => {
 onUnmounted(() => {
     stopPolling(); // Clear polling interval
 });
+
+// Page metadata
+useHead({
+    title: 'Home Security - Streams'
+});
 </script>
 
 <template>
     <div class="max-w-7xl mx-auto">
         <!-- Page title -->
-        <PageTitle title="Home Security Streams" subtitle="View all live streams from your home security system" icon="fas fa-video" />
+        <PageTitle title="Streams" subtitle="View all live streams from your home security system" icon="fas fa-video" />
 
         <!-- Refresh button -->
         <div class="flex justify-end mb-6 space-x-3">

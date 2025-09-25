@@ -34,7 +34,7 @@ const toggleMenu = () => {
                 <div class="flex flex-1 items-center ms-3 md:ms-0 md:items-stretch md:justify-start">
                     <!-- Logo -->
                     <NuxtLink to="/" class="flex items-center">
-                        <img src="/favicon.ico" alt="Bruma Ants Logo" height="44" width="44" loading="lazy" class="transform transition-all duration-300 hover:scale-105" />
+                        <i class="fas fa-shield-alt text-3xl text-blue-600 transform transition-all duration-300 hover:scale-105" />
                     </NuxtLink>
 
                     <!-- Desktop menu -->

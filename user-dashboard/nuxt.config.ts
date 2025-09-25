@@ -11,6 +11,14 @@ export default defineNuxtConfig({
         }
     },
 
+    app: {
+        head: {
+            htmlAttrs: {
+                lang: 'en'
+            }
+        }
+    },
+
     css: ['~/assets/css/main.css'],
 
     vite: {
