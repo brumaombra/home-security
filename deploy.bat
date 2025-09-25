@@ -58,9 +58,9 @@ if %errorlevel% geq 8 (
     goto :error
 )
 
-:: Remove the images folder from deploy folder (I can't exclude it with robocopy)
-echo Removing images folder from deploy folder...
-if exist deploy-video-analysis\public\images rmdir /s /q deploy-video-analysis\public\images
+:: Empty the images folder from deploy folder (I can't exclude it with robocopy)
+echo Emptying images folder from deploy folder...
+if exist deploy-video-analysis\public\images del /q deploy-video-analysis\public\images\*
 
 :: Force delete and recreate the video-analysis directory on the Raspberry Pi
 echo Force deleting and recreating video-analysis directory on Raspberry Pi...
