@@ -1,10 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { showMessageToast } from '~/composables/useUtils.js';
+import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import StreamsList from '~/components/streams/StreamsList.vue';
 import Button from '~/components/ui/Button.vue';
 import LoadMoreButton from '~/components/ui/LoadMoreButton.vue';
-import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 const globalStore = useGlobalStore();
 const loading = ref(false);
@@ -70,7 +71,10 @@ const loadMore = async () => {
 // Add new stream
 const addStream = async () => {
     if (!newStreamUrl.value.trim()) {
-        alert('Please enter a stream URL');
+        showMessageToast({
+            message: 'Please enter a stream URL',
+            type: 'error'
+        });
         return;
     }
 
@@ -83,8 +87,15 @@ const addStream = async () => {
         newStreamUrl.value = '';
         addStreamModalOpen.value = false;
         await loadStreams(); // Refresh the list
+        showMessageToast({
+            message: 'Stream added successfully',
+            type: 'success'
+        });
     } catch (error) {
-        alert(`Error adding stream: ${error.message}`);
+        showMessageToast({
+            message: `Error adding stream: ${error.message}`,
+            type: 'error'
+        });
     } finally {
         addingStream.value = false;
     }
@@ -141,8 +152,8 @@ onUnmounted(() => {
         <PageTitle title="Home Security Streams" subtitle="View all live streams from your home security system" icon="fas fa-video" />
 
         <!-- Refresh button -->
-        <div class="flex justify-end mb-6">
-            <Button text="Add Stream" type="success" icon="fas fa-plus" @click="handleOpenAddStreamModal" class="mr-3" />
+        <div class="flex justify-end mb-6 space-x-3">
+            <Button text="Add Stream" type="success" icon="fas fa-plus" @click="handleOpenAddStreamModal" />
             <Button text="Refresh" type="primary" :disabled="loading" icon="fas fa-sync" @click="loadStreams" />
         </div>
 

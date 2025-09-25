@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import Card from '~/components/ui/Card.vue';
 import Button from '~/components/ui/Button.vue';
+import { showMessageToast, showConfirmDialog } from '~/composables/useUtils.js';
 
 // Props
 const props = defineProps({
@@ -78,8 +79,15 @@ const restartStream = async () => {
     try {
         await $fetch(`/api/streams/${props.stream.streamId}/restart`, { method: 'POST' }); // Call the restart API
         emit('restart-success'); // Notify parent to refresh streams
+        showMessageToast({
+            message: `Stream ${props.stream.streamId} restarted successfully`,
+            type: 'success'
+        });
     } catch (error) {
-        alert(`Error restarting stream: ${error.message}`);
+        showMessageToast({
+            message: `Error restarting stream: ${error.message}`,
+            type: 'error'
+        });
     }
 };
 
@@ -88,22 +96,50 @@ const stopStream = async () => {
     try {
         await $fetch(`/api/streams/${props.stream.streamId}/stop`, { method: 'POST' }); // Call the stop API
         emit('restart-success'); // Notify parent to refresh streams
+        showMessageToast({
+            message: `Stream ${props.stream.streamId} stopped successfully`,
+            type: 'success'
+        });
     } catch (error) {
-        alert(`Error stopping stream: ${error.message}`);
+        showMessageToast({
+            message: `Error stopping stream: ${error.message}`,
+            type: 'error'
+        });
     }
 };
 
 // Delete stream
 const deleteStream = async () => {
-    if (!confirm(`Are you sure you want to delete stream ${props.stream.streamId}?`)) {
-        return;
-    }
-    try {
-        await $fetch(`/api/streams/${props.stream.streamId}`, { method: 'DELETE' }); // Call the delete API
-        emit('delete-success'); // Notify parent to refresh streams
-    } catch (error) {
-        alert(`Error deleting stream: ${error.message}`);
-    }
+    showConfirmDialog({
+        message: `Are you sure you want to delete stream ${props.stream.streamId}?`,
+        title: 'Delete Stream',
+        themeColor: 'danger',
+        onConfirm: async () => {
+            try {
+                await $fetch(`/api/streams/${props.stream.streamId}`, { method: 'DELETE' }); // Call the delete API
+                emit('delete-success'); // Notify parent to refresh streams
+                showMessageToast({
+                    message: `Stream ${props.stream.streamId} deleted successfully`,
+                    type: 'success'
+                });
+            } catch (error) {
+                showMessageToast({
+                    message: `Error deleting stream: ${error.message}`,
+                    type: 'error'
+                });
+            }
+        },
+        confirmButton: {
+            type: 'danger',
+            text: 'Delete',
+            icon: 'fas fa-trash'
+        },
+        cancelButton: {
+            type: 'secondary',
+            text: 'Cancel',
+            icon: 'fas fa-times'
+        }
+    });
 };
 </script>
 
@@ -144,7 +180,7 @@ const deleteStream = async () => {
         </div>
 
         <!-- Action buttons -->
-        <div class="w-full mt-6 space-y-2">
+        <div class="w-full mt-6 space-y-3">
             <Button :text="buttonConfig.text" :type="buttonConfig.type" :icon="buttonConfig.icon" :disabled="buttonConfig.disabled" class="w-full" @click="buttonConfig.action" />
             <Button text="Delete Stream" type="danger" icon="fas fa-trash" class="w-full" @click="deleteStream" />
         </div>
