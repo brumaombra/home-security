@@ -1,6 +1,5 @@
 import express from 'express';
 import { getMulterUploadMiddleware } from '../multer.js';
-import { detectObjectsInImage } from '../../detection/object-detection.js';
 
 const router = express.Router();
 const multerMiddleware = getMulterUploadMiddleware();
@@ -13,10 +12,42 @@ router.post('/', multerMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'No image file provided' });
         }
 
-        // Use the detectObjectsInImage function
-        const detectionData = await detectObjectsInImage({
+        // Get inference worker from app
+        const inferenceWorker = req.app.locals.inferenceWorker;
+        if (!inferenceWorker) {
+            return res.status(500).json({ error: 'Inference worker not available' });
+        }
+
+        // Create a unique request ID
+        const requestId = `api_${Date.now()}`;
+
+        // Send the image buffer to the inference worker
+        inferenceWorker.send({
+            type: 'detect_request',
             imageBuffer: req.file.buffer,
-            generateImage: req.body.generateImage === 'true'
+            requestId: requestId,
+            streamId: 'api'
+        });
+
+        // Wait for detection result
+        const detectionData = await new Promise((resolve, reject) => {
+            // Listen for messages from the inference worker
+            const handler = message => {
+                if (message.type === 'detect_response' && message.requestId === requestId) {
+                    inferenceWorker.removeListener('message', handler); // Clean up listener
+                    if (message.error) {
+                        reject(new Error(message.error));
+                    } else {
+                        resolve({
+                            detections: message.detections,
+                            annotatedImage: message.annotatedImage
+                        });
+                    }
+                }
+            };
+
+            // Attach the message handler
+            inferenceWorker.on('message', handler);
         });
 
         // Add the prefix to the annotated image if it exists
@@ -26,14 +57,12 @@ router.post('/', multerMiddleware, async (req, res) => {
 
         // Send the response
         res.json({
+            detections: detectionData.detections,
+            annotatedImage: detectionData.annotatedImage,
             imageInfo: {
-                width: detectionData.imageInfo.width,
-                height: detectionData.imageInfo.height,
                 filename: req.file.originalname,
                 size: req.file.size
-            },
-            detections: detectionData.detections,
-            annotatedImage: detectionData.annotatedImage
+            }
         });
     } catch (error) {
         console.error('Error in object detection:', error);

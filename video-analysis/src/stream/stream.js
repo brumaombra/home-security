@@ -2,6 +2,7 @@ import { fork } from 'child_process';
 import { addEvent } from '../storage/storage.js';
 
 let streams = []; // Keep track of streams
+let inferenceWorker = null; // Reference to the inference worker
 
 // Helper function to create and setup a worker for a stream
 const createWorkerForStream = stream => {
@@ -12,13 +13,15 @@ const createWorkerForStream = stream => {
     worker.send({ streamUrl: stream.streamUrl, streamId: stream.streamId });
 
     // Handle messages from worker
-    worker.on('message', message => {
+    worker.on('message', async message => {
         if (message.type === 'event') {
             addEvent(message.event); // Store event in main process
             console.log(`Event recorded from ${stream.streamId}: ${message.event.detectionsCount} object(s) detected`);
         } else if (message.type === 'connected') {
             console.log(`Stream ${stream.streamId} connected successfully`);
             stream.status = 'active';
+        } else if (message.type === 'detect_request') {
+            inferenceWorker.send(message); // Forward detection request to inference worker
         }
     });
 
@@ -57,6 +60,22 @@ const createWorkerForStream = stream => {
 
 // Start a worker process for every stream
 export const startStreamWorkers = async config => {
+    // Save reference to the inference worker
+    inferenceWorker = config.inferenceWorker;
+
+    // Listen for messages from inference worker
+    inferenceWorker.on('message', message => {
+        if (message.type === 'detect_response') {
+            // Find the stream worker that made the request
+            const { requestId } = message;
+            const streamId = requestId.split('_').slice(0, 2).join('_'); // e.g., stream_0
+            const stream = streams.find(s => s.streamId === streamId);
+            if (stream && stream.worker) {
+                stream.worker.send(message);
+            }
+        }
+    });
+
     // Spawn workers for each stream
     config.streamSources?.forEach((streamUrl, index) => {
         // Create stream object with initial status

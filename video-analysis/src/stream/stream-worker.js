@@ -2,19 +2,40 @@ import fetch from 'node-fetch';
 import jpeg from 'jpeg-js';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { initTensorFlow, loadObjectDetectionModel } from '../tensorflow/tensorflow.js';
-import { detectObjectsInImage } from '../detection/object-detection.js';
 import { saveBase64ImageToFile } from '../utils/utils.js';
 
 let streamState = null; // State for this stream
 let lastFrame = null;
 let isMovementDetected = false;
 let skipCounter = 0;
+let pendingRequests = new Map(); // Map for pending detection requests
+let requestIdCounter = 0; // Counter for request IDs
+
+// Request object detection from parent process
+const requestDetection = imageBuffer => {
+    return new Promise((resolve) => {
+        const requestId = `${streamState.id}_${requestIdCounter++}`;
+        pendingRequests.set(requestId, resolve);
+        process.send({ type: 'detect_request', imageBuffer, requestId, streamId: streamState.id });
+    });
+};
 
 // Initialize worker
 process.on('message', async message => {
     if (message.streamUrl && message.streamId) {
         await initWorker(message.streamUrl, message.streamId);
+    } else if (message.type === 'detect_response') {
+        // Handle detection response
+        const { requestId, detections, annotatedImage, error } = message;
+        const resolve = pendingRequests.get(requestId);
+        if (resolve) {
+            pendingRequests.delete(requestId);
+            if (error) {
+                resolve({ error });
+            } else {
+                resolve({ detections, annotatedImage });
+            }
+        }
     }
 });
 
@@ -22,10 +43,6 @@ process.on('message', async message => {
 const initWorker = async (streamUrl, streamId) => {
     try {
         console.log(`Worker starting for ${streamId} from ${streamUrl}...`);
-
-        // Initialize TensorFlow and load model
-        await initTensorFlow(streamId);
-        await loadObjectDetectionModel(streamId);
 
         // Connect to MJPEG stream
         const response = await fetch(streamUrl);
@@ -162,13 +179,18 @@ const analyzeMovementImage = async (pngFrame, streamId) => {
     try {
         // Convert PNG to buffer for detection
         const pngBuffer = PNG.sync.write(pngFrame);
-        const detectionData = await detectObjectsInImage({ imageBuffer: pngBuffer });
-        detections = detectionData.detections || [];
+        const detectionResult = await requestDetection(pngBuffer);
+        if (detectionResult.error) {
+            throw detectionResult.error;
+        }
+
+        // Get detections
+        detections = detectionResult.detections || [];
 
         // Save annotated image if available
-        if (detectionData.annotatedImage) {
+        if (detectionResult.annotatedImage) {
             console.log(`Annotated image generated from ${streamId}`);
-            imageFilename = saveBase64ImageToFile(detectionData.annotatedImage, streamId);
+            imageFilename = saveBase64ImageToFile(detectionResult.annotatedImage, streamId);
         }
 
         // Create event object

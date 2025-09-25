@@ -38,7 +38,9 @@ const handleDeleteSuccess = () => {
 
         <!-- Streams grid -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <StreamCard v-for="(stream, index) in streams" :key="stream.streamId" :stream="stream" @restart-success="handleRestartSuccess" @delete-success="handleDeleteSuccess" data-aos="fade-up" :data-aos-delay="(index % 3) * 100" />
+            <div v-for="(stream, index) in streams" :key="stream.streamId" data-aos="fade-up" :data-aos-delay="(index % 3) * 100">
+                <StreamCard :stream="stream" @restart-success="handleRestartSuccess" @delete-success="handleDeleteSuccess" />
+            </div>
         </div>
     </div>
 </template>

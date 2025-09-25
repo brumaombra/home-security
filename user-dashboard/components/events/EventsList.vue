@@ -42,7 +42,9 @@ const closeImageModal = () => {
 
         <!-- Events grid -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <EventCard v-for="(event, index) in events" :key="event.id" :event="event" @click="openImageModal" data-aos="fade-up" :data-aos-delay="(index % 3) * 100" />
+            <div v-for="(event, index) in events" :key="event.id" data-aos="fade-up" :data-aos-delay="(index % 3) * 100">
+                <EventCard :event="event" @click="openImageModal" />
+            </div>
         </div>
 
         <!-- Modal -->

@@ -24,6 +24,10 @@ app.use('/api/streams', streamsRouter);
 
 // Start the server
 export const startServer = config => {
+    // Make inference worker accessible in routes
+    app.locals.inferenceWorker = config.inferenceWorker;
+
+    // Start the server
     app.listen(config.serverPort, () => {
         console.log(`Server running on port ${config.serverPort}!`);
     });

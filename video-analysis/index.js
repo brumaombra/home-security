@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
+import { fork } from 'child_process';
 import { startStreamWorkers } from './src/stream/stream.js';
 import { startServer } from './src/server/web-server.js';
-import { initTensorFlow, loadObjectDetectionModel } from './src/tensorflow/tensorflow.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -9,9 +9,8 @@ dotenv.config();
 // Configuration settings
 const config = {
     serverPort: process.env.SERVER_PORT, // Port for the web server
-    streamSources: [ // Array of URLs for MJPEG streams
-        'http://192.168.21.117:8080/video'
-    ]
+    streamSources: ['http://192.168.21.117:8080/video'], // Array of URLs for MJPEG streams
+    inferenceWorker: null // Placeholder for inference worker
 };
 
 // Check the env variables
@@ -31,10 +30,13 @@ const initApp = async config => {
         // Check environment variables
         checkEnvVariables();
 
+        // Start the inference worker
+        console.log('Starting inference worker...');
+        const inferenceWorker = fork('./src/tensorflow/inference-worker.js', [], { stdio: 'inherit' });
+        config.inferenceWorker = inferenceWorker;
+
         // Start the application
         console.log('Starting the application...');
-        await initTensorFlow('main'); // Initialize TensorFlow for API usage
-        await loadObjectDetectionModel('main'); // Load the object detection model for API usage
         await startStreamWorkers(config); // Start stream workers
         startServer(config); // Start the server
     } catch (error) {
