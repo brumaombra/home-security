@@ -1,12 +1,15 @@
 module.exports = {
     apps: [
         {
-            name: 'security-dashboard',
+            name: 'security-user-dashboard',
             exec_mode: 'fork',
             instances: 1,
-            script: './index.js',
+            script: './server/index.mjs',
+            cwd: __dirname,
             env: {
-                SERVER_PORT: 3000
+                NITRO_PORT: 3000,
+                NUXT_ENVIRONMENT: 'production',
+                VIDEO_SERVICE_BASE_URL: 'http://localhost:3000'
             },
             log_file: './logs.log',
             merge_logs: true,

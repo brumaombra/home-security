@@ -1,54 +1,112 @@
 @echo off
 echo Starting deployment process...
 
-:: Build the Nuxt app
-echo Building Nuxt app...
-cd user-dashboard
-npm run build
-if %errorlevel% neq 0 (
-    echo Error: Failed to build Nuxt app.
-    goto :error
-)
-cd ..
-echo Nuxt app built successfully.
+:: ----------------- Deploy the user-dashboard Nuxt app -----------------
 
-:: Create the git archive
-echo Creating git archive...
-git archive --format=tar --output=deploy.tar HEAD
+:: Remove the node_modules folder before deployment
+echo Removing node_modules folder...
+if exist user-dashboard\.output\server\node_modules rmdir /s /q user-dashboard\.output\server\node_modules
+
+:: Create the directory on the Raspberry Pi if it doesn't exist
+echo Creating directory on Raspberry Pi...
+ssh pi@raspberry.local "mkdir -p ~/projects/home-security/user-dashboard"
 if %errorlevel% neq 0 (
-    echo Error: Failed to create git archive.
+    echo Error: Failed to create directory on Raspberry Pi.
     goto :error
 )
 
-:: Copy the archive to the Raspberry Pi
-echo Copying archive to Raspberry Pi...
-scp deploy.tar pi@raspberry.local:~/projects/
+:: Empty the remote folder before deployment
+echo Emptying remote folder...
+ssh pi@raspberry.local "rm -rf ~/projects/home-security/user-dashboard/*"
 if %errorlevel% neq 0 (
-    echo Error: Failed to copy archive via SCP.
+    echo Error: Failed to empty remote folder.
     goto :error
 )
 
-:: Extract and deploy on the Raspberry Pi
-echo Extracting and deploying on Raspberry Pi...
-ssh pi@raspberry.local "rm -rf ~/projects/home-security && mkdir ~/projects/home-security && tar -xf ~/projects/deploy.tar -C ~/projects/home-security && rm ~/projects/deploy.tar"
+:: Deploy the build folder to Raspberry Pi
+echo Deploying build folder to Raspberry Pi...
+scp -r user-dashboard\.output\* pi@raspberry.local:~/projects/home-security/user-dashboard/
 if %errorlevel% neq 0 (
-    echo Error: Failed to execute commands on Raspberry Pi via SSH.
+    echo Error: Failed to deploy via SCP.
     goto :error
 )
 
-:: Install dependencies on the Raspberry Pi
+:: Deploy the ecosystem config file to Raspberry Pi
+echo Deploying ecosystem config file to Raspberry Pi...
+scp user-dashboard\ecosystem.config.cjs pi@raspberry.local:~/projects/home-security/user-dashboard/
+if %errorlevel% neq 0 (
+    echo Error: Failed to deploy ecosystem config file.
+    goto :error
+)
+
+:: Install dependencies on Raspberry Pi
 echo Installing dependencies on Raspberry Pi...
-ssh pi@raspberry.local "cd ~/projects/home-security/user-dashboard && npm install && cd ../video-analysis && npm install"
+ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && cd ~/projects/home-security/user-dashboard/server && npm install"
 if %errorlevel% neq 0 (
     echo Error: Failed to install dependencies on Raspberry Pi.
     goto :error
 )
 
-:: Clean up  local archive
-echo Cleaning up local archive...
-del deploy.tar
+:: Restart the Nuxt app using PM2
+echo Restarting Nuxt app using PM2...
+ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && pm2 restart security-user-dashboard || pm2 start ~/projects/home-security/user-dashboard/ecosystem.config.cjs"
 if %errorlevel% neq 0 (
-    echo Error: Failed to delete local archive.
+    echo Error: Failed to restart or start Nuxt app using PM2.
+    goto :error
+)
+
+:: ----------------- Deploy the video-analysis Node app -----------------
+
+:: Create a deploy folder excluding node_modules
+echo Creating deploy folder for video-analysis...
+if exist deploy-video-analysis rmdir /s /q deploy-video-analysis
+robocopy video-analysis deploy-video-analysis /E /XD node_modules
+if %errorlevel% geq 8 (
+    echo Error: Failed to create deploy folder.
+    goto :error
+)
+
+:: Create the directory on the Raspberry Pi if it doesn't exist
+echo Creating video-analysis directory on Raspberry Pi...
+ssh pi@raspberry.local "mkdir -p ~/projects/home-security/video-analysis"
+if %errorlevel% neq 0 (
+    echo Error: Failed to create video-analysis directory on Raspberry Pi.
+    goto :error
+)
+
+:: Empty the remote folder before deployment
+echo Emptying remote video-analysis folder...
+ssh pi@raspberry.local "rm -rf ~/projects/home-security/video-analysis/*"
+if %errorlevel% neq 0 (
+    echo Error: Failed to empty remote video-analysis folder.
+    goto :error
+)
+
+:: Deploy the deploy folder to Raspberry Pi
+echo Deploying video-analysis deploy folder to Raspberry Pi...
+scp -r deploy-video-analysis\* pi@raspberry.local:~/projects/home-security/video-analysis/
+if %errorlevel% neq 0 (
+    echo Error: Failed to deploy video-analysis via SCP.
+    goto :error
+)
+
+:: Clean up deploy folder
+echo Cleaning up deploy folder...
+rmdir /s /q deploy-video-analysis
+
+:: Install dependencies on Raspberry Pi
+echo Installing video-analysis dependencies on Raspberry Pi...
+ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && cd ~/projects/home-security/video-analysis && npm install"
+if %errorlevel% neq 0 (
+    echo Error: Failed to install video-analysis dependencies on Raspberry Pi.
+    goto :error
+)
+
+:: Restart the video-analysis app using PM2
+echo Restarting video-analysis app using PM2...
+ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && pm2 restart security-video-analysis || pm2 start ~/projects/home-security/video-analysis/ecosystem.config.cjs"
+if %errorlevel% neq 0 (
+    echo Error: Failed to restart or start video-analysis app using PM2.
     goto :error
 )
 
@@ -61,3 +119,4 @@ pause
 
 :end
 pause
+cmd /k

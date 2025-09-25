@@ -1,10 +1,11 @@
 module.exports = {
     apps: [
         {
-            name: 'security-video',
+            name: 'security-video-analysis',
             exec_mode: 'fork',
             instances: 1,
             script: './index.js',
+            cwd: __dirname,
             env: {
                 SERVER_PORT: 3000
             },
