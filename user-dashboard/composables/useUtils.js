@@ -62,3 +62,39 @@ export const showConfirmDialog = ({ message, title, themeColor, onConfirm, onCan
         icon: cancelButton.icon
     };
 };
+
+// Download image from base64 string
+export const downloadBase64Image = (base64Image, filename = 'image.jpg') => {
+    // Validation
+    if (!base64Image) {
+        showMessageToast({ message: 'No image available to download.', type: 'error' });
+        return;
+    }
+
+    try {
+        // Convert base64 to Blob
+        const base64Data = base64Image.split(',')[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+
+        // Create a byte array and a Blob
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'image/jpeg' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `detected_base64_${filename}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        // Show success message
+        showMessageToast({ message: 'Image downloaded successfully from base64!', type: 'success' });
+    } catch (error) {
+        showMessageToast({ message: 'Failed to download image from base64.', type: 'error' });
+    }
+};
