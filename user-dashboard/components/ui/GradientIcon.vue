@@ -92,7 +92,7 @@ const contentClasses = computed(() => {
 <template>
     <div class="relative inline-flex">
         <!-- Blur shadow -->
-        <div v-if="props.withBlur" :class="['absolute inset-0 bg-gradient-to-r opacity-20 dark:opacity-10 blur scale-110', sizeConfig[props.size].radius, getBackgroundGradient(props.color)]"></div>
+        <div v-if="props.withBlur" :class="['absolute inset-0 bg-gradient-to-r opacity-20 blur scale-110', sizeConfig[props.size].radius, getBackgroundGradient(props.color)]"></div>
 
         <!-- Icon container -->
         <div :class="containerClasses" class="space-x-2.5">

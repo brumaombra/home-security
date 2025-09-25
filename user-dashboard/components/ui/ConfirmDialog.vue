@@ -42,7 +42,7 @@ const handleConfirmPress = () => {
             </div>
 
             <!-- Message -->
-            <p class="text-sm md:text-base font-semibold text-gray-500 dark:text-gray-400">{{ props.message }}</p>
+            <p class="text-sm md:text-base font-semibold text-gray-500">{{ props.message }}</p>
         </template>
 
         <!-- Footer -->

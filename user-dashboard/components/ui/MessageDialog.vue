@@ -76,7 +76,7 @@ const handleClosePress = () => {
                         <i :class="['bg-clip-text text-transparent bg-gradient-to-br', iconClasses, getBackgroundGradient(gradientName)]"></i>
                         <span :class="['bg-clip-text text-transparent bg-gradient-to-br', getBackgroundGradient(gradientName)]">{{ dialogTitle }}</span>
                     </h3>
-                    <p class="text-gray-600 dark:text-gray-300">{{ props.message }}</p>
+                    <p class="text-gray-600">{{ props.message }}</p>
                 </div>
             </div>
         </template>

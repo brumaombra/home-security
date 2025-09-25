@@ -36,7 +36,7 @@ const handleDismissToastPress = () => {
         <!-- Gradient border wrapper -->
         <div v-if="props.visible" :class="['fixed bottom-6 right-6 max-w-[350px] min-w-[250px] rounded-xl pl-1 bg-gradient-to-b shadow-md z-50', getBackgroundGradient(gradientName)]">
             <!-- Inner content with background -->
-            <div class="rounded-xl p-4 bg-white dark:bg-gray-800 h-full" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="rounded-xl p-4 bg-white h-full" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="flex items-center">
                     <!-- Icon based on type -->
                     <div class="mr-3 flex-shrink-0">
@@ -46,10 +46,10 @@ const handleDismissToastPress = () => {
                     </div>
 
                     <!-- Message text -->
-                    <p class="flex-grow text-sm font-medium m-0 text-gray-800 dark:text-gray-300">{{ props.message }}</p>
+                    <p class="flex-grow text-sm font-medium m-0 text-gray-800">{{ props.message }}</p>
 
                     <!-- Dismiss button -->
-                    <button type="button" class="ml-3 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 text-xl bg-transparent border-none cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-200 focus:outline-none" aria-label="Close" @click="handleDismissToastPress">
+                    <button type="button" class="ml-3 text-gray-500 hover:text-gray-800 text-xl bg-transparent border-none cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-200 focus:outline-none" aria-label="Close" @click="handleDismissToastPress">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

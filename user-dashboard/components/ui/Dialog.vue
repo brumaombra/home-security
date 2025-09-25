@@ -26,7 +26,7 @@ const sizeClass = computed(() => {
     <Transition name="modal-fade">
         <div v-if="props.visible" class="fixed inset-0 z-40 overflow-hidden bg-gray-900/50">
             <div class="flex min-h-screen items-center justify-center p-4">
-                <div :class="['relative flex flex-col overflow-hidden w-full max-h-[90vh] rounded-xl bg-white dark:bg-gray-800 animate-slideUp', sizeClass]">
+                <div :class="['relative flex flex-col overflow-hidden w-full max-h-[90vh] rounded-xl bg-white animate-slideUp', sizeClass]">
                     <!-- Gradients in the corners -->
                     <div v-if="props.themeColor" :class="['absolute top-0 right-0 w-1/4 h-1/4 rounded-bl-[90%] pointer-events-none z-0 bg-gradient-to-r', getSoftGradient(props.themeColor)]"></div>
                     <div v-if="props.themeColor" :class="['absolute bottom-0 left-0 w-1/4 h-1/4 rounded-tr-[90%] pointer-events-none z-0 bg-gradient-to-r', getSoftGradient(props.themeColor)]"></div>

@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { showMessageToast } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import StreamsList from '~/components/streams/StreamsList.vue';
+import AddStreamModal from '~/components/streams/AddStreamModal.vue';
 import Button from '~/components/ui/Button.vue';
 import LoadMoreButton from '~/components/ui/LoadMoreButton.vue';
 
@@ -12,9 +12,7 @@ const loading = ref(false);
 const loadingMore = ref(false);
 const error = ref(null);
 const limit = ref(9);
-const addStreamModalOpen = ref(false);
-const newStreamUrl = ref('');
-const addingStream = ref(false);
+const addStreamModalVisible = ref(false);
 const pollingInterval = ref(null);
 
 // Load streams
@@ -22,9 +20,8 @@ const loadStreams = async () => {
     error.value = null; // Reset error state
 
     try {
-        loading.value = true;
-
         // Fetch streams
+        loading.value = true;
         const result = await $fetch('/api/streams', {
             params: {
                 page: 1,
@@ -68,42 +65,9 @@ const loadMore = async () => {
     }
 };
 
-// Add new stream
-const addStream = async () => {
-    if (!newStreamUrl.value.trim()) {
-        showMessageToast({
-            message: 'Please enter a stream URL',
-            type: 'error'
-        });
-        return;
-    }
-
-    addingStream.value = true;
-    try {
-        await $fetch('/api/streams', {
-            method: 'POST',
-            body: { streamUrl: newStreamUrl.value.trim() }
-        });
-        newStreamUrl.value = '';
-        addStreamModalOpen.value = false;
-        await loadStreams(); // Refresh the list
-        showMessageToast({
-            message: 'Stream added successfully',
-            type: 'success'
-        });
-    } catch (error) {
-        showMessageToast({
-            message: `Error adding stream: ${error.message}`,
-            type: 'error'
-        });
-    } finally {
-        addingStream.value = false;
-    }
-};
-
 // Handle open add stream modal
 const handleOpenAddStreamModal = () => {
-    addStreamModalOpen.value = true;
+    addStreamModalVisible.value = true;
 };
 
 // Start polling for streams
@@ -153,7 +117,7 @@ onUnmounted(() => {
 
         <!-- Refresh button -->
         <div class="flex justify-end mb-6 space-x-3">
-            <Button text="Add Stream" type="success" icon="fas fa-plus" @click="handleOpenAddStreamModal" />
+            <Button text="Add Stream" type="primary" icon="fas fa-plus" @click="handleOpenAddStreamModal" />
             <Button text="Refresh" type="primary" :disabled="loading" icon="fas fa-sync" @click="loadStreams" />
         </div>
 
@@ -165,17 +129,5 @@ onUnmounted(() => {
     </div>
 
     <!-- Add Stream Modal -->
-    <div v-if="addStreamModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 class="text-lg font-semibold mb-4">Add New Stream</h3>
-            <div class="mb-4">
-                <label for="streamUrl" class="block text-sm font-medium text-gray-700 mb-2">Stream URL</label>
-                <input id="streamUrl" v-model="newStreamUrl" type="url" placeholder="rtsp://example.com/stream" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" @keyup.enter="addStream" />
-            </div>
-            <div class="flex justify-end space-x-3">
-                <Button text="Cancel" type="secondary" @click="addStreamModalOpen = false" />
-                <Button text="Add Stream" type="success" :disabled="addingStream" :icon="addingStream ? 'fas fa-spinner fa-spin' : 'fas fa-plus'" @click="addStream" />
-            </div>
-        </div>
-    </div>
+    <AddStreamModal v-model:visible="addStreamModalVisible" @stream-added="loadStreams" />
 </template>
