@@ -9,7 +9,7 @@ module.exports = {
             env: {
                 NITRO_PORT: 3000,
                 NUXT_ENVIRONMENT: 'production',
-                VIDEO_SERVICE_BASE_URL: 'http://localhost:3000'
+                VIDEO_SERVICE_BASE_URL: 'http://localhost:3001'
             },
             log_file: './logs.log',
             merge_logs: true,

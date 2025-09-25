@@ -60,11 +60,15 @@ if %errorlevel% neq 0 (
 :: Create a deploy folder excluding node_modules
 echo Creating deploy folder for video-analysis...
 if exist deploy-video-analysis rmdir /s /q deploy-video-analysis
-robocopy video-analysis deploy-video-analysis /E /XD node_modules
+robocopy video-analysis deploy-video-analysis /E /XD node_modules /XF events.json
 if %errorlevel% geq 8 (
     echo Error: Failed to create deploy folder.
     goto :error
 )
+
+:: Remove the images folder from deploy folder (I can't exclude it with robocopy)
+echo Removing images folder from deploy folder...
+if exist deploy-video-analysis\public\images rmdir /s /q deploy-video-analysis\public\images
 
 :: Create the directory on the Raspberry Pi if it doesn't exist
 echo Creating video-analysis directory on Raspberry Pi...

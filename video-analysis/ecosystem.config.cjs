@@ -7,7 +7,7 @@ module.exports = {
             script: './index.js',
             cwd: __dirname,
             env: {
-                SERVER_PORT: 3000
+                SERVER_PORT: 3001
             },
             log_file: './logs.log',
             merge_logs: true,
