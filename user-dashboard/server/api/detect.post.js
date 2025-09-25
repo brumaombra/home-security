@@ -8,7 +8,7 @@ export default defineEventHandler(async event => {
         const formData = new FormData();
         for (const field of formDataArray) {
             if (field.filename) {
-                formData.append(field.name, new Blob([field.data]), field.filename);
+                formData.append(field.name, new Blob([field.data], { type: field.type }), field.filename);
             } else {
                 formData.append(field.name, field.data.toString());
             }
