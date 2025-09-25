@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import jpeg from 'jpeg-js';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { saveBase64ImageToFile } from '../utils/utils.js';
+import { saveBase64ImageToFile, printLog } from '../utils/utils.js';
 
 let streamState = null; // State for this stream
 let lastFrame = null;
@@ -43,11 +43,11 @@ process.on('message', async message => {
 // Initialize TensorFlow and start stream
 const initWorker = async (streamUrl, streamId) => {
     try {
-        console.log(`Worker starting for ${streamId} from ${streamUrl}...`);
+        printLog(`Worker starting for ${streamId} from ${streamUrl}...`);
 
         // Connect to MJPEG stream
         const response = await fetch(streamUrl);
-        console.log(`Stream ${streamId} connection established successfully!`);
+        printLog(`Stream ${streamId} connection established successfully!`);
 
         // Notify parent that connection is successful
         process.send({ type: 'connected', streamId });
@@ -96,7 +96,7 @@ const initWorker = async (streamUrl, streamId) => {
                     const rawImage = jpeg.decode(jpegFrame, { useTArray: true });
                     await detectMovement(rawImage, streamId);
                 } catch (err) {
-                    console.error(`JPEG decode error for ${streamId}:`, err.message);
+                    printLog(`JPEG decode error for ${streamId}:`, { type: 'error' });
                 }
 
                 // Remove processed data from buffer
@@ -107,16 +107,16 @@ const initWorker = async (streamUrl, streamId) => {
 
         // Handle stream end
         response.body.on('end', () => {
-            console.log(`Stream ${streamId} ended`);
+            printLog(`Stream ${streamId} ended`);
             process.exit(0); // Exit worker
         });
 
         // Handle stream errors
         response.body.on('error', err => {
-            console.error(`Stream ${streamId} error:`, err.message);
+            printLog(`Stream ${streamId} error:`, { type: 'error', error: err });
         });
     } catch (error) {
-        console.error(`Failed to start worker for ${streamId}:`, error.message);
+        printLog(`Failed to start worker for ${streamId}:`, { type: 'error', error });
         process.exit(1);
     }
 };
@@ -144,7 +144,7 @@ const detectMovement = async (image, streamId) => {
         // Check for significant movement
         if (numDiffPixels > 5000) {
             if (!isMovementDetected) {
-                console.log(`Movement detected on ${streamId}! Skipping 5 frames before analysis...`);
+                printLog(`Movement detected on ${streamId}! Skipping 5 frames before analysis...`);
                 isMovementDetected = true;
                 skipCounter = 5;
             }
@@ -156,7 +156,7 @@ const detectMovement = async (image, streamId) => {
         if (skipCounter > 0) {
             skipCounter--;
         } else {
-            console.log(`Analyzing frame from ${streamId} after skipping...`);
+            printLog(`Analyzing frame from ${streamId} after skipping...`);
             streamState.analyze = false;
             await analyzeMovementImage(pngFrame, streamId);
             setTimeout(() => {
@@ -172,7 +172,7 @@ const detectMovement = async (image, streamId) => {
 
 // Analyze image for objects
 const analyzeMovementImage = async (pngFrame, streamId) => {
-    console.log(`Analyzing frame from ${streamId} for object detection...`);
+    printLog(`Analyzing frame from ${streamId} for object detection...`);
     const timestamp = Date.now();
     let imageFilename = null;
     let detections = [];
@@ -190,7 +190,7 @@ const analyzeMovementImage = async (pngFrame, streamId) => {
 
         // Save annotated image if available
         if (detectionResult.annotatedImage) {
-            console.log(`Annotated image generated from ${streamId}`);
+            printLog(`Annotated image generated from ${streamId}`);
             imageFilename = saveBase64ImageToFile(detectionResult.annotatedImage, streamId);
         }
 
@@ -207,6 +207,6 @@ const analyzeMovementImage = async (pngFrame, streamId) => {
         // Send event to parent
         process.send({ type: 'event', event });
     } catch (error) {
-        console.error(`Error in object detection for ${streamId}:`, error);
+        printLog(`Error in object detection for ${streamId}:`, { type: 'error', error });
     }
 };

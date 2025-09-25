@@ -1,5 +1,6 @@
 import express from 'express';
 import { loadEvents } from '../../storage/storage.js';
+import { printLog } from '../../utils/utils.js';
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error loading events:', error);
+        printLog('Error loading events:', { type: 'error', error });
         res.status(500).json({ error: 'Unable to load events' });
     }
 });

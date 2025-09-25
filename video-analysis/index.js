@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { fork } from 'child_process';
 import { startStreamWorkers } from './src/stream/stream.js';
 import { startServer } from './src/server/web-server.js';
+import { printLog } from './src/utils/utils.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -18,7 +19,7 @@ const checkEnvVariables = () => {
     const requiredEnvVars = ['SERVER_PORT'];
     requiredEnvVars.forEach(varName => {
         if (!process.env[varName]) {
-            console.error(`${varName} is not defined in environment variables!`);
+            printLog(`${varName} is not defined in environment variables!`, { type: 'error' });
             process.exit(1);
         }
     });
@@ -31,16 +32,16 @@ const initApp = async config => {
         checkEnvVariables();
 
         // Start the inference worker
-        console.log('Starting inference worker...');
+        printLog('Starting inference worker...');
         const inferenceWorker = fork('./src/tensorflow/inference-worker.js', [], { stdio: 'inherit' });
         config.inferenceWorker = inferenceWorker;
 
         // Start the application
-        console.log('Starting the application...');
+        printLog('Starting the application...');
         await startStreamWorkers(config); // Start stream workers
         startServer(config); // Start the server
     } catch (error) {
-        console.error('Error initializing app:', error);
+        printLog('Error initializing app:', { type: 'error', error });
         process.exit(1);
     }
 };

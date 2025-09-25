@@ -1,6 +1,7 @@
 import { Jimp } from 'jimp';
 import { createCanvas, loadImage } from 'canvas';
 import { createTensorFromImage } from '../tensorflow/tensorflow.js';
+import { printLog } from '../utils/utils.js';
 
 // Convert image buffer to tensor
 export const processImage = async ({ imageBuffer, resize = false, maxWidth = 1024, maxHeight = 1024 }) => {
@@ -28,7 +29,7 @@ export const processImage = async ({ imageBuffer, resize = false, maxWidth = 102
         const tensor = createTensorFromImage({ rgbData, width, height });
         return { tensor, width, height, originalImage: image };
     } catch (error) {
-        console.error('Error processing image:', error);
+        printLog('Error processing image:', { type: 'error', error });
         throw error;
     }
 };
@@ -36,7 +37,7 @@ export const processImage = async ({ imageBuffer, resize = false, maxWidth = 102
 // Draw bounding boxes and labels on image
 export const drawDetections = async (image, predictions) => {
     try {
-        console.log(`Drawing detections on image: ${image.width}x${image.height}, ${predictions.length} predictions`);
+        printLog(`Drawing detections on image: ${image.width}x${image.height}, ${predictions.length} predictions`);
 
         // Get image buffer
         const imageBuffer = await image.getBuffer('image/png');
@@ -94,10 +95,10 @@ export const drawDetections = async (image, predictions) => {
         const annotatedBuffer = canvas.toBuffer('image/png');
         const annotatedImage = await Jimp.read(annotatedBuffer);
 
-        console.log(`Drawing complete. Annotated image dimensions: ${annotatedImage.width}x${annotatedImage.height}`);
+        printLog(`Drawing complete. Annotated image dimensions: ${annotatedImage.width}x${annotatedImage.height}`);
         return annotatedImage;
     } catch (error) {
-        console.error('Error drawing detections:', error);
+        printLog('Error drawing detections:', { type: 'error', error });
         throw error;
     }
 };
@@ -115,7 +116,7 @@ export const imageToBase64 = async image => {
         const base64Image = await imageBuffer.toString('base64');
         return base64Image;
     } catch (error) {
-        console.error('Error converting image to base64:', error);
+        printLog('Error converting image to base64:', { type: 'error', error });
         throw error;
     }
 };

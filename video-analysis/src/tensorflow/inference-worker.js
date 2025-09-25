@@ -1,15 +1,16 @@
 import { initTensorFlow, loadObjectDetectionModel } from './tensorflow.js';
 import { detectObjectsInImage } from '../detection/object-detection.js';
+import { printLog } from '../utils/utils.js';
 
 // Initialize TensorFlow and load model
 const initInference = async () => {
     try {
-        console.log('Initializing TensorFlow in inference worker...');
+        printLog('Initializing TensorFlow in inference worker...');
         await initTensorFlow('inference');
         await loadObjectDetectionModel('inference');
-        console.log('Inference worker ready');
+        printLog('Inference worker ready');
     } catch (error) {
-        console.error('Error initializing inference worker:', error);
+        printLog('Error initializing inference worker:', { type: 'error', error });
         process.exit(1);
     }
 };
@@ -23,7 +24,7 @@ process.on('message', async message => {
             const buffer = Buffer.from(imageBuffer);
 
             // Process detection
-            console.log(`Processing detection request ${requestId} from ${streamId} in inference worker`);
+            printLog(`Processing detection request ${requestId} from ${streamId} in inference worker`);
             const detectionData = await detectObjectsInImage({ imageBuffer: buffer });
 
             // Send back the detection results
@@ -34,7 +35,7 @@ process.on('message', async message => {
                 annotatedImage: detectionData.annotatedImage
             });
         } catch (error) {
-            console.error(`Error in detection for request ${message.requestId}:`, error);
+            printLog(`Error in detection for request ${message.requestId}:`, { type: 'error', error });
             process.send({
                 type: 'detect_response',
                 requestId: message.requestId,

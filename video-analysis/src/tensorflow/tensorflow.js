@@ -1,16 +1,17 @@
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
+import { printLog } from '../utils/utils.js';
 
 let objectDetectionModel = null; // COCO-SSD model instance
 
 // Initialize TensorFlow.js
 export const initTensorFlow = async streamId => {
     try {
-        console.log(`Initializing TensorFlow for stream ${streamId}...`);
+        printLog(`Initializing TensorFlow for stream ${streamId}...`);
         await tf.ready(); // Ensure TensorFlow.js is ready
-        console.log(`TensorFlow is ready for stream ${streamId}!`);
+        printLog(`TensorFlow is ready for stream ${streamId}!`);
     } catch (error) {
-        console.error(`Error initializing TensorFlow for stream ${streamId}:`, error);
+        printLog(`Error initializing TensorFlow for stream ${streamId}:`, { type: 'error', error });
         throw error;
     }
 };
@@ -18,11 +19,11 @@ export const initTensorFlow = async streamId => {
 // Load the COCO-SSD model
 export const loadObjectDetectionModel = async streamId => {
     try {
-        console.log(`Loading COCO-SSD model for stream ${streamId}...`);
+        printLog(`Loading COCO-SSD model for stream ${streamId}...`);
         objectDetectionModel = await cocoSsd.load(); // Load the model
-        console.log(`COCO-SSD model loaded successfully for stream ${streamId}!`);
+        printLog(`COCO-SSD model loaded successfully for stream ${streamId}!`);
     } catch (error) {
-        console.error(`Error loading model for stream ${streamId}:`, error);
+        printLog(`Error loading model for stream ${streamId}:`, { type: 'error', error });
         throw error;
     }
 };

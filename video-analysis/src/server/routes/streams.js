@@ -1,5 +1,6 @@
 import express from 'express';
 import { getStreams, restartStream, stopStream, createStream, deleteStream } from '../../stream/stream.js';
+import { printLog } from '../../utils/utils.js';
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error loading streams:', error);
+        printLog('Error loading streams:', { type: 'error', error });
         res.status(500).json({ error: 'Unable to load streams' });
     }
 });
@@ -45,7 +46,7 @@ router.post('/', async (req, res) => {
         const stream = createStream(streamUrl);
         res.status(201).json({ message: 'Stream created successfully', stream });
     } catch (error) {
-        console.error('Error creating stream:', error);
+        printLog('Error creating stream:', { type: 'error', error });
         res.status(500).json({ error: error.message });
     }
 });
@@ -57,7 +58,7 @@ router.post('/:streamId/restart', async (req, res) => {
         const stream = restartStream(streamId);
         res.json({ message: `Stream ${streamId} restarted successfully`, stream });
     } catch (error) {
-        console.error('Error restarting stream:', error);
+        printLog('Error restarting stream:', { type: 'error', error });
         res.status(500).json({ error: error.message });
     }
 });
@@ -69,7 +70,7 @@ router.post('/:streamId/stop', async (req, res) => {
         const stream = stopStream(streamId);
         res.json({ message: `Stream ${streamId} stopped successfully`, stream });
     } catch (error) {
-        console.error('Error stopping stream:', error);
+        printLog('Error stopping stream:', { type: 'error', error });
         res.status(500).json({ error: error.message });
     }
 });
@@ -81,7 +82,7 @@ router.delete('/:streamId', async (req, res) => {
         const deletedStream = deleteStream(streamId);
         res.json({ message: `Stream ${streamId} deleted successfully`, deletedStream });
     } catch (error) {
-        console.error('Error deleting stream:', error);
+        printLog('Error deleting stream:', { type: 'error', error });
         res.status(500).json({ error: error.message });
     }
 });

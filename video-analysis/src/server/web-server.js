@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import eventsRouter from './routes/events.js';
 import detectRouter from './routes/detect.js';
 import streamsRouter from './routes/streams.js';
+import logsRouter from './routes/logs.js';
+import { printLog } from '../utils/utils.js';
 
 const app = express();
 
@@ -21,6 +23,7 @@ app.use(express.static(path.join(__dirname, '../../public')));
 app.use('/api/events', eventsRouter);
 app.use('/api/detect', detectRouter);
 app.use('/api/streams', streamsRouter);
+app.use('/api/logs', logsRouter);
 
 // Start the server
 export const startServer = config => {
@@ -29,6 +32,6 @@ export const startServer = config => {
 
     // Start the server
     app.listen(config.serverPort, () => {
-        console.log(`Server running on port ${config.serverPort}!`);
+        printLog(`Server running on port ${config.serverPort}!`);
     });
 };

@@ -7,7 +7,8 @@ const isOpen = ref(false);
 const navLinks = computed(() => [
     { to: '/events', label: 'Events' },
     { to: '/streams', label: 'Streams' },
-    { to: '/detect', label: 'Detect' }
+    { to: '/detect', label: 'Detect' },
+    { to: '/logs', label: 'Logs' }
 ]);
 
 // Toggle mobile menu

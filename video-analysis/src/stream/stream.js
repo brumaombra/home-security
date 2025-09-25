@@ -1,5 +1,6 @@
 import { fork } from 'child_process';
 import { addEvent } from '../storage/storage.js';
+import { printLog } from '../utils/utils.js';
 
 let streams = []; // Keep track of streams
 let inferenceWorker = null; // Reference to the inference worker
@@ -16,9 +17,9 @@ const createWorkerForStream = stream => {
     worker.on('message', async message => {
         if (message.type === 'event') {
             addEvent(message.event); // Store event in main process
-            console.log(`Event recorded from ${stream.streamId}: ${message.event.detectionsCount} object(s) detected`);
+            printLog(`Event recorded from ${stream.streamId}: ${message.event.detectionsCount} object(s) detected`);
         } else if (message.type === 'connected') {
-            console.log(`Stream ${stream.streamId} connected successfully`);
+            printLog(`Stream ${stream.streamId} connected successfully`);
             stream.status = 'active';
         } else if (message.type === 'detect_request') {
             inferenceWorker.send(message); // Forward detection request to inference worker
@@ -27,7 +28,7 @@ const createWorkerForStream = stream => {
 
     // Handle worker exit
     worker.on('exit', code => {
-        console.log(`Worker for ${stream.streamId} exited with code ${code}`);
+        printLog(`Worker for ${stream.streamId} exited with code ${code}`);
 
         // Update stream status only if it was active or starting
         if (stream.status === 'active' || stream.status === 'starting') {
@@ -37,7 +38,7 @@ const createWorkerForStream = stream => {
 
     // Handle worker disconnect
     worker.on('disconnect', () => {
-        console.log(`Worker for ${stream.streamId} disconnected`);
+        printLog(`Worker for ${stream.streamId} disconnected`);
 
         // Update stream status only if it was active or starting
         if (stream.status === 'active' || stream.status === 'starting') {
@@ -47,7 +48,7 @@ const createWorkerForStream = stream => {
 
     // Handle worker error
     worker.on('error', error => {
-        console.error(`Worker for ${stream.streamId} error:`, error);
+        printLog(`Worker for ${stream.streamId} error:`, { type: 'error', error });
 
         // Update stream status only if it was active or starting
         if (stream.status === 'active' || stream.status === 'starting') {
@@ -88,7 +89,7 @@ export const startStreamWorkers = async config => {
         try {
             stream.worker = createWorkerForStream(stream); // Create worker and assign to stream
         } catch (error) {
-            console.error(`Failed to start worker for ${stream.streamId}:`, error);
+            printLog(`Failed to start worker for ${stream.streamId}:`, { type: 'error', error });
             stream.status = 'inactive';
         }
 
@@ -122,7 +123,7 @@ export const restartStream = streamId => {
     try {
         stream.worker = createWorkerForStream(stream); // Create new worker and update stream
     } catch (error) {
-        console.error(`Failed to restart worker for ${stream.streamId}:`, error);
+        printLog(`Failed to restart worker for ${stream.streamId}:`, { type: 'error', error });
         stream.status = 'inactive';
         throw error; // Re-throw to let API handle
     }
@@ -167,7 +168,7 @@ export const createStream = streamUrl => {
     try {
         stream.worker = createWorkerForStream(stream); // Create worker and assign to stream
     } catch (error) {
-        console.error(`Failed to start worker for ${stream.streamId}:`, error);
+        printLog(`Failed to start worker for ${stream.streamId}:`, { type: 'error', error });
         stream.status = 'inactive';
     }
 

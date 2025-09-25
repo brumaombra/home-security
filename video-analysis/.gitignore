@@ -1,4 +1,5 @@
 node_modules
 images
 events.json
+logs.json
 .env

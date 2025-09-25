@@ -1,5 +1,6 @@
 import express from 'express';
 import { getMulterUploadMiddleware } from '../multer.js';
+import { printLog } from '../../utils/utils.js';
 
 const router = express.Router();
 const multerMiddleware = getMulterUploadMiddleware();
@@ -65,7 +66,7 @@ router.post('/', multerMiddleware, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in object detection:', error);
+        printLog('Error in object detection:', { type: 'error', error });
 
         // Send error response
         res.status(500).json({
