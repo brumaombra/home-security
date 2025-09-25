@@ -7,19 +7,11 @@ echo Starting deployment process...
 echo Removing node_modules folder...
 if exist user-dashboard\.output\server\node_modules rmdir /s /q user-dashboard\.output\server\node_modules
 
-:: Create the directory on the Raspberry Pi if it doesn't exist
-echo Creating directory on Raspberry Pi...
-ssh pi@raspberry.local "mkdir -p ~/projects/home-security/user-dashboard"
+:: Force delete and recreate the directory on the Raspberry Pi
+echo Force deleting and recreating directory on Raspberry Pi...
+ssh pi@raspberry.local "rm -rf ~/projects/home-security/user-dashboard && mkdir -p ~/projects/home-security/user-dashboard"
 if %errorlevel% neq 0 (
-    echo Error: Failed to create directory on Raspberry Pi.
-    goto :error
-)
-
-:: Empty the remote folder before deployment
-echo Emptying remote folder...
-ssh pi@raspberry.local "rm -rf ~/projects/home-security/user-dashboard/*"
-if %errorlevel% neq 0 (
-    echo Error: Failed to empty remote folder.
+    echo Error: Failed to delete and recreate directory on Raspberry Pi.
     goto :error
 )
 
@@ -70,19 +62,11 @@ if %errorlevel% geq 8 (
 echo Removing images folder from deploy folder...
 if exist deploy-video-analysis\public\images rmdir /s /q deploy-video-analysis\public\images
 
-:: Create the directory on the Raspberry Pi if it doesn't exist
-echo Creating video-analysis directory on Raspberry Pi...
-ssh pi@raspberry.local "mkdir -p ~/projects/home-security/video-analysis"
+:: Force delete and recreate the video-analysis directory on the Raspberry Pi
+echo Force deleting and recreating video-analysis directory on Raspberry Pi...
+ssh pi@raspberry.local "rm -rf ~/projects/home-security/video-analysis && mkdir -p ~/projects/home-security/video-analysis"
 if %errorlevel% neq 0 (
-    echo Error: Failed to create video-analysis directory on Raspberry Pi.
-    goto :error
-)
-
-:: Empty the remote folder before deployment
-echo Emptying remote video-analysis folder...
-ssh pi@raspberry.local "rm -rf ~/projects/home-security/video-analysis/*"
-if %errorlevel% neq 0 (
-    echo Error: Failed to empty remote video-analysis folder.
+    echo Error: Failed to delete and recreate video-analysis directory on Raspberry Pi.
     goto :error
 )
 
