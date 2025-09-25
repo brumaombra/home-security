@@ -9,7 +9,7 @@ dotenv.config();
 // Configuration settings
 const config = {
     serverPort: process.env.SERVER_PORT, // Port for the web server
-    streamSources: ['http://192.168.21.117:8080/video'], // Array of URLs for MJPEG streams
+    streamSources: [], // Array of URLs for MJPEG streams
     inferenceWorker: null // Placeholder for inference worker
 };
 

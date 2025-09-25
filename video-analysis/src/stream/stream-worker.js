@@ -10,6 +10,7 @@ let isMovementDetected = false;
 let skipCounter = 0;
 let pendingRequests = new Map(); // Map for pending detection requests
 let requestIdCounter = 0; // Counter for request IDs
+const DETECTION_COOLDOWN = 5000; // Detection cooldown period in ms
 
 // Request object detection from parent process
 const requestDetection = imageBuffer => {
@@ -160,7 +161,7 @@ const detectMovement = async (image, streamId) => {
             await analyzeMovementImage(pngFrame, streamId);
             setTimeout(() => {
                 streamState.analyze = true;
-            }, 2000);
+            }, DETECTION_COOLDOWN); // Cooldown before next analysis
             isMovementDetected = false;
         }
     }
