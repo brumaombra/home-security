@@ -8,7 +8,7 @@ import Button from '~/components/ui/Button.vue';
 import LoadMoreButton from '~/components/ui/LoadMoreButton.vue';
 
 const globalStore = useGlobalStore();
-const loading = ref(false);
+const loading = ref(true);
 const loadingMore = ref(false);
 const error = ref(null);
 const limit = ref(9);
@@ -125,7 +125,11 @@ onUnmounted(() => {
         <StreamsList :streams="globalStore.streams.results" :loading="loading && globalStore.streams.results.length === 0" :error="error" @restart-success="loadStreams" @delete-success="loadStreams" />
 
         <!-- Load more button -->
-        <LoadMoreButton v-if="globalStore.streams.pagination.hasMore" :busy="loadingMore" :text="`Load More (${globalStore.streams.pagination.currentPage * globalStore.streams.pagination.limit} of ${globalStore.streams.pagination.total})`" @load-more="loadMore" class="mt-8" />
+        <LoadMoreButton v-if="globalStore.streams.pagination.hasMore && !error"
+            :busy="loadingMore"
+            :text="`Load More (${globalStore.streams.pagination.currentPage * globalStore.streams.pagination.limit} of ${globalStore.streams.pagination.total})`"
+            @load-more="loadMore"
+            class="mt-8" />
     </div>
 
     <!-- Add Stream Modal -->

@@ -2,6 +2,9 @@
 import { ref } from 'vue';
 import EventCard from '~/components/events/EventCard.vue';
 import EventImageModal from '~/components/events/EventImageModal.vue';
+import EmptyState from '~/components/ui/EmptyState.vue';
+import LoadingState from '~/components/ui/LoadingState.vue';
+import ErrorState from '~/components/ui/ErrorState.vue';
 
 // Props
 const props = defineProps({
@@ -29,23 +32,17 @@ const closeImageModal = () => {
 <template>
     <div>
         <!-- Loading state -->
-        <div v-if="loading" class="text-center py-12">
-            <div class="text-xl text-gray-500">Loading events...</div>
-        </div>
+        <LoadingState v-if="loading" text="Loading events..." />
 
         <!-- Error state -->
-        <div v-else-if="error" class="text-center py-12">
-            <div class="text-xl text-red-500">{{ error }}</div>
-        </div>
+        <ErrorState v-else-if="error" title="Failed to load events" :message="error" />
 
         <!-- Empty state -->
-        <div v-else-if="events.length === 0" class="text-center py-12">
-            <div class="text-xl text-gray-500">No events found</div>
-        </div>
+        <EmptyState v-else-if="events.length === 0" icon="fas fa-calendar-times" title="No events found" description="There are no security events to display at the moment." />
 
         <!-- Events grid -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <EventCard v-for="event in events" :key="event.id" :event="event" @click="openImageModal" />
+            <EventCard v-for="(event, index) in events" :key="event.id" :event="event" @click="openImageModal" data-aos="fade-up" :data-aos-delay="(index % 3) * 100" />
         </div>
 
         <!-- Modal -->

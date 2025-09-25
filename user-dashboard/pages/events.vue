@@ -7,7 +7,7 @@ import Button from '~/components/ui/Button.vue';
 import LoadMoreButton from '~/components/ui/LoadMoreButton.vue';
 
 const globalStore = useGlobalStore();
-const loading = ref(false);
+const loading = ref(true);
 const loadingMore = ref(false);
 const error = ref(null);
 const limit = ref(9);
@@ -17,9 +17,8 @@ const loadEvents = async () => {
     error.value = null; // Reset error state
 
     try {
-        loading.value = true;
-
         // Fetch events
+        loading.value = true;
         const result = await $fetch('/api/events', {
             params: {
                 page: 1,
@@ -88,7 +87,7 @@ onMounted(async () => {
         <EventsList :events="globalStore.events.results" :loading="loading && globalStore.events.results.length === 0" :error="error" />
 
         <!-- Load more button -->
-        <LoadMoreButton v-if="globalStore.events.pagination.hasMore"
+        <LoadMoreButton v-if="globalStore.events.pagination.hasMore && !error"
             :busy="loadingMore"
             :text="`Load More (${globalStore.events.pagination.currentPage * globalStore.events.pagination.limit} of ${globalStore.events.pagination.total})`"
             @load-more="loadMore"

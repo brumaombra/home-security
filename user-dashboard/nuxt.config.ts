@@ -32,7 +32,8 @@ export default defineNuxtConfig({
             routes: [
                 '/',
                 '/events',
-                '/streams'
+                '/streams',
+                '/detect'
             ]
         }
     },
