@@ -3,21 +3,18 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { initWebSocket } from '../websocket/websocket.js';
+import { printLog } from '../utils/utils.js';
 import eventsRouter from './routes/events.js';
 import detectRouter from './routes/detect.js';
 import streamsRouter from './routes/streams.js';
 import logsRouter from './routes/logs.js';
-import { printLog } from '../utils/utils.js';
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "*", // Allow all origins for now, adjust as needed
-        methods: ["GET", "POST"]
-    }
-});
+
+// Initialize WebSocket server
+initWebSocket(server);
 
 // Get the current file and directory names
 const __filename = fileURLToPath(import.meta.url);
@@ -34,23 +31,10 @@ app.use('/api/detect', detectRouter);
 app.use('/api/streams', streamsRouter);
 app.use('/api/logs', logsRouter);
 
-// Socket.IO connection handling
-io.on('connection', socket => {
-    printLog(`Client connected: ${socket.id}`);
-
-    // On client disconnect
-    socket.on('disconnect', () => {
-        printLog(`Client disconnected: ${socket.id}`);
-    });
-});
-
 // Start the server
 export const startServer = config => {
     // Make inference worker accessible in routes
     app.locals.inferenceWorker = config.inferenceWorker;
-
-    // Make io accessible globally for emitting events
-    global.io = io;
 
     // Start the server
     server.listen(config.serverPort, () => {
