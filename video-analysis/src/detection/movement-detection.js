@@ -3,7 +3,7 @@ import pixelmatch from 'pixelmatch';
 import { detectObjectsInImage } from '../detection/object-detection.js';
 import { startStreamAnalysis, stopStreamAnalysis } from '../stream/stream.js';
 import { saveBase64ImageToFile, printLog } from '../utils/utils.js';
-import { addEvent } from '../storage/storage.js';
+import { addEvent } from '../storage/events.js';
 
 let streamStates = {}; // Object to hold state for each stream
 

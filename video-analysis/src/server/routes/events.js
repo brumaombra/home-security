@@ -1,5 +1,5 @@
 import express from 'express';
-import { loadEvents } from '../../storage/storage.js';
+import { loadEvents } from '../../storage/events.js';
 import { printLog } from '../../utils/utils.js';
 
 const router = express.Router();

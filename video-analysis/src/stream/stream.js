@@ -1,5 +1,5 @@
 import { fork } from 'child_process';
-import { addEvent } from '../storage/storage.js';
+import { addEvent } from '../storage/events.js';
 import { printLog } from '../utils/utils.js';
 
 let streams = []; // Keep track of streams

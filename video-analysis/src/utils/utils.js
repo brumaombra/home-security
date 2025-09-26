@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { addLog } from '../storage/storage.js';
+import { addLog } from '../storage/logs.js';
 
 // Round the percentage to two decimal places
 export const roundPercentage = value => {
