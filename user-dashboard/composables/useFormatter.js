@@ -16,7 +16,7 @@ export const formatPercentage = (number, decimals = 2) => {
     });
 };
 
-// Format just the date (e.g. "07/19/2025")
+// Format just the date (e.g. "19/07/2025")
 export const formatDate = dateInput => {
     if (!dateInput) return '';
 
@@ -30,15 +30,15 @@ export const formatDate = dateInput => {
     // Check for valid date
     if (isNaN(date.getTime())) return '';
 
-    // Format in English
-    return new Intl.DateTimeFormat('en-US', {
+    // Format in Italian
+    return new Intl.DateTimeFormat('it-IT', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
     }).format(date);
 };
 
-// Format just the date (e.g. "July 19, 2025")
+// Format just the date (e.g. "19 luglio 2025")
 export const formatDateLong = dateInput => {
     if (!dateInput) return '';
 
@@ -52,15 +52,15 @@ export const formatDateLong = dateInput => {
     // Check for valid date
     if (isNaN(date.getTime())) return '';
 
-    // Format in English
-    return new Intl.DateTimeFormat('en-US', {
+    // Format in Italian
+    return new Intl.DateTimeFormat('it-IT', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     }).format(date);
 };
 
-// Format just the time (e.g. "09:30 AM")
+// Format just the time (e.g. "09:30")
 export const formatTime = dateInput => {
     if (!dateInput) return '';
 
@@ -74,10 +74,11 @@ export const formatTime = dateInput => {
     // Check for valid date
     if (isNaN(date.getTime())) return '';
 
-    // Format in English
-    return new Intl.DateTimeFormat('en-US', {
+    // Format in Italian
+    return new Intl.DateTimeFormat('it-IT', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        hour12: false
     }).format(date);
 };
 
@@ -95,17 +96,18 @@ export const formatDateAndTime = dateInput => {
     // Check for valid date
     if (isNaN(date.getTime())) return '';
 
-    // Format in English
-    return new Intl.DateTimeFormat('en-US', {
+    // Format in Italian
+    return new Intl.DateTimeFormat('it-IT', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        hour12: false
     }).format(date);
 };
 
-// Format just the date (e.g. "July 19, 2025 at 09:30 AM")
+// Format just the date (e.g. "19 luglio 2025, 09:30")
 export const formatDateAndTimeLong = dateInput => {
     if (!dateInput) return '';
 
@@ -119,12 +121,13 @@ export const formatDateAndTimeLong = dateInput => {
     // Check for valid date
     if (isNaN(date.getTime())) return '';
 
-    // Format in English
-    return new Intl.DateTimeFormat('en-US', {
+    // Format in Italian
+    return new Intl.DateTimeFormat('it-IT', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        hour12: false
     }).format(date);
 };

@@ -7,7 +7,6 @@ export default defineNuxtConfig({
         // Public runtime config
         public: {
             nuxtEnvironment: process.env.NUXT_ENVIRONMENT || 'development',
-            videoServiceUrl: process.env.VIDEO_SERVICE_URL || 'http://localhost',
             videoServicePort: process.env.VIDEO_SERVICE_PORT || '3001'
         }
     },

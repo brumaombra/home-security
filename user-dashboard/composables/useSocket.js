@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { getVideoServiceFullUrl, showMessageToast } from '~/composables/useUtils.js';
+import { getVideoServiceBaseUrl, showMessageToast } from '~/composables/useUtils.js';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 
 let socket = null; // Socket.IO client instance
@@ -8,7 +8,7 @@ let socket = null; // Socket.IO client instance
 export const initSocket = () => {
     if (socket) return socket;
     const globalStore = useGlobalStore();
-    const backendUrl = getVideoServiceFullUrl(); // Get backend URL from runtime config
+    const backendUrl = getVideoServiceBaseUrl(); // Get backend URL from runtime config
     socket = io(backendUrl); // Connect to the backend
 
     // On socket connect
