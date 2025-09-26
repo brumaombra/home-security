@@ -61,7 +61,7 @@ const handleCancel = () => {
                 <h3 class="text-xl font-bold text-gray-900 mb-4">Add New Stream</h3>
                 <div class="space-y-3">
                     <Label text="Stream URL" for="streamUrl" />
-                    <Input id="streamUrl" v-model="newStreamUrl" type="url" placeholder="rtsp://example.com/stream" @keyup.enter="addStream" />
+                    <Input id="streamUrl" v-model="newStreamUrl" type="url" placeholder="http://192.168.1.10/stream" @keyup.enter="addStream" />
                 </div>
             </div>
         </template>
