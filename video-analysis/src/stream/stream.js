@@ -18,6 +18,15 @@ const createWorkerForStream = stream => {
         if (message.type === 'event') {
             addEvent(message.event); // Store event in main process
             printLog(`Event recorded from ${stream.streamId}: ${message.event.detectionsCount} object(s) detected`);
+
+            // Emit real-time notification to connected clients
+            if (global.io) {
+                global.io.emit('event-detected', {
+                    streamId: stream.streamId,
+                    detectionsCount: message.event.detectionsCount,
+                    timestamp: message.event.timestamp
+                });
+            }
         } else if (message.type === 'connected') {
             printLog(`Stream ${stream.streamId} connected successfully`);
             stream.status = 'active';

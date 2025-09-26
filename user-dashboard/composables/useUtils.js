@@ -7,12 +7,17 @@ export const setBusy = busy => {
     globalStore.value.busy = busy;
 };
 
-// Call the video service API
-export const callVideoService = async (url, options = {}) => {
+// Get the full video service URL
+export const getVideoServiceFullUrl = (path = '') => {
     const runtimeConfig = useRuntimeConfig();
     const videoServiceUrl = runtimeConfig.public.videoServiceUrl;
     const videoServicePort = runtimeConfig.public.videoServicePort;
-    const fullUrl = `${videoServiceUrl}:${videoServicePort}${url}`;
+    return `${videoServiceUrl}:${videoServicePort}${path}`;
+};
+
+// Call the video service API
+export const callVideoService = async (url, options = {}) => {
+    const fullUrl = getVideoServiceFullUrl(url);
     return await $fetch(fullUrl, options);
 };
 

@@ -62,5 +62,10 @@ export const useGlobalStore = () => useState('global', () => ({
             limit: 10,
             hasMore: false
         }
+    },
+
+    // WebSocket connection status
+    websocket: {
+        status: 'disconnected' // 'connected', 'connecting', 'disconnected'
     }
 }));

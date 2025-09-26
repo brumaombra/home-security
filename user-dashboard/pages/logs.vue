@@ -1,16 +1,17 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
 import { callVideoService } from '~/composables/useUtils.js';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import LogsList from '~/components/logs/LogsList.vue';
 import Button from '~/components/ui/Button.vue';
+import LoadMoreButton from '~/components/ui/LoadMoreButton.vue';
 
 const globalStore = useGlobalStore();
 const loading = ref(true);
+const loadingMore = ref(false);
 const error = ref(null);
 const limit = ref(20);
-let pollingInterval = null;
 
 // Load logs
 const loadLogs = async () => {
@@ -36,28 +37,40 @@ const loadLogs = async () => {
     }
 };
 
-// Start polling
-const startPolling = () => {
-    pollingInterval = setInterval(loadLogs, 5000); // Poll every 5 seconds
-};
+// Load more logs
+const loadMore = async () => {
+    loadingMore.value = true;
 
-// Stop polling
-const stopPolling = () => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
+    try {
+        // Increment page number for next batch
+        const nextPage = globalStore.value.logs.pagination.currentPage + 1;
+
+        // Make API request for the next page
+        const result = await callVideoService('/api/logs', {
+            params: {
+                page: nextPage,
+                limit: limit.value
+            }
+        });
+
+        // Store the logs and pagination info
+        globalStore.value.logs.results = [...globalStore.value.logs.results, ...result.results]; // Append new items to existing ones
+        globalStore.value.logs.pagination = result.pagination;
+    } catch (err) {
+        error.value = err.message || 'Failed to load more logs';
+    } finally {
+        loadingMore.value = false;
     }
 };
 
 // On component mounted
 onMounted(async () => {
-    await loadLogs();
-    startPolling();
-});
-
-// On component unmounted
-onUnmounted(() => {
-    stopPolling();
+    // Only fetch data if not already loaded
+    if (globalStore.value.logs.results.length === 0) {
+        await loadLogs();
+    } else {
+        loading.value = false;
+    }
 });
 
 // Page metadata
@@ -78,5 +91,12 @@ useHead({
 
         <!-- Logs list -->
         <LogsList :logs="globalStore.logs.results" :loading="loading && globalStore.logs.results.length === 0" :error="error" />
+
+        <!-- Load more button -->
+        <LoadMoreButton v-if="globalStore.logs.pagination.hasMore && !error"
+            :busy="loadingMore"
+            :text="`Load More (${globalStore.logs.pagination.currentPage * globalStore.logs.pagination.limit} of ${globalStore.logs.pagination.total})`"
+            @load-more="loadMore"
+            class="mt-8" />
     </div>
 </template>

@@ -14,7 +14,8 @@
         "@fortawesome/fontawesome-free": "7.0.1",
         "@tailwindcss/vite": "4.1.13",
         "aos": "2.3.4",
-        "tailwindcss": "4.1.13",
-        "nuxt": "3.17.6"
+        "nuxt": "3.17.6",
+        "socket.io-client": "4.8.1",
+        "tailwindcss": "4.1.13"
     }
 }

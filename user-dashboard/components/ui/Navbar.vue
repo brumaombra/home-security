@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import WebSocketStatus from '~/components/ui/WebSocketStatus.vue';
 
 const isOpen = ref(false);
 
@@ -46,6 +47,11 @@ const toggleMenu = () => {
                             </NuxtLink>
                         </template>
                     </div>
+                </div>
+
+                <!-- WebSocket Status (right side) -->
+                <div class="flex items-center">
+                    <WebSocketStatus />
                 </div>
             </div>
         </div>
