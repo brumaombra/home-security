@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
+import { callVideoService } from '~/composables/useUtils.js';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import EventsList from '~/components/events/EventsList.vue';
 import Button from '~/components/ui/Button.vue';
@@ -19,7 +20,7 @@ const loadEvents = async () => {
     try {
         // Fetch events
         loading.value = true;
-        const result = await $fetch('/api/events', {
+        const result = await callVideoService('/api/events', {
             params: {
                 page: 1,
                 limit: limit.value
@@ -45,7 +46,7 @@ const loadMore = async () => {
         const nextPage = globalStore.value.events.pagination.currentPage + 1;
 
         // Make API request for the next page
-        const result = await $fetch('/api/events', {
+        const result = await callVideoService('/api/events', {
             params: {
                 page: nextPage,
                 limit: limit.value

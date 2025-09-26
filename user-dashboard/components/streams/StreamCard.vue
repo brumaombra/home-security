@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import Card from '~/components/ui/Card.vue';
 import Button from '~/components/ui/Button.vue';
-import { showMessageToast, showConfirmDialog } from '~/composables/useUtils.js';
+import { showMessageToast, showConfirmDialog, callVideoService } from '~/composables/useUtils.js';
 
 // Props
 const props = defineProps({
@@ -77,7 +77,7 @@ const getStatusInfo = status => {
 // Restart stream
 const restartStream = async () => {
     try {
-        await $fetch(`/api/streams/${props.stream.streamId}/restart`, { method: 'POST' }); // Call the restart API
+        await callVideoService(`/api/streams/${props.stream.streamId}/restart`, { method: 'POST' }); // Call the restart API
         emit('restart-success'); // Notify parent to refresh streams
         showMessageToast({
             message: `Stream ${props.stream.streamId} restarted successfully`,
@@ -94,7 +94,7 @@ const restartStream = async () => {
 // Stop stream
 const stopStream = async () => {
     try {
-        await $fetch(`/api/streams/${props.stream.streamId}/stop`, { method: 'POST' }); // Call the stop API
+        await callVideoService(`/api/streams/${props.stream.streamId}/stop`, { method: 'POST' }); // Call the stop API
         emit('restart-success'); // Notify parent to refresh streams
         showMessageToast({
             message: `Stream ${props.stream.streamId} stopped successfully`,
@@ -116,7 +116,7 @@ const deleteStream = async () => {
         themeColor: 'danger',
         onConfirm: async () => {
             try {
-                await $fetch(`/api/streams/${props.stream.streamId}`, { method: 'DELETE' }); // Call the delete API
+                await callVideoService(`/api/streams/${props.stream.streamId}`, { method: 'DELETE' }); // Call the delete API
                 emit('delete-success'); // Notify parent to refresh streams
                 showMessageToast({
                     message: `Stream ${props.stream.streamId} deleted successfully`,

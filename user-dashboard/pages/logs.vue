@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
+import { callVideoService } from '~/composables/useUtils.js';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import LogsList from '~/components/logs/LogsList.vue';
 import Button from '~/components/ui/Button.vue';
@@ -18,7 +19,7 @@ const loadLogs = async () => {
     try {
         // Fetch logs
         loading.value = true;
-        const result = await $fetch('/api/logs', {
+        const result = await callVideoService('/api/logs', {
             params: {
                 page: 1,
                 limit: limit.value

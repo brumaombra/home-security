@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useGlobalStore } from '~/composables/stores/useGlobalStore.js';
+import { callVideoService } from '~/composables/useUtils.js';
 import PageTitle from '~/components/ui/PageTitle.vue';
 import StreamsList from '~/components/streams/StreamsList.vue';
 import AddStreamModal from '~/components/streams/AddStreamModal.vue';
@@ -22,7 +23,7 @@ const loadStreams = async () => {
     try {
         // Fetch streams
         loading.value = true;
-        const result = await $fetch('/api/streams', {
+        const result = await callVideoService('/api/streams', {
             params: {
                 page: 1,
                 limit: limit.value
@@ -48,7 +49,7 @@ const loadMore = async () => {
         const nextPage = globalStore.value.streams.pagination.currentPage + 1;
 
         // Make API request for the next page
-        const result = await $fetch('/api/streams', {
+        const result = await callVideoService('/api/streams', {
             params: {
                 page: nextPage,
                 limit: limit.value

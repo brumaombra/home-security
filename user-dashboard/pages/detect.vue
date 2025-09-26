@@ -1,5 +1,5 @@
 <script setup>
-import { showMessageToast, downloadBase64Image } from '~/composables/useUtils.js';
+import { showMessageToast, downloadBase64Image, callVideoService } from '~/composables/useUtils.js';
 import UploadSection from '~/components/detect/UploadSection.vue';
 import PreviewSection from '~/components/detect/PreviewSection.vue';
 import ResultsSection from '~/components/detect/ResultsSection.vue';
@@ -41,7 +41,7 @@ const analyzeImage = async () => {
         formData.append('generateImage', true);
 
         // Call the detection API
-        const response = await $fetch('/api/detect', {
+        const response = await callVideoService('/api/detect', {
             method: 'POST',
             body: formData
         });

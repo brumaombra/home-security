@@ -4,7 +4,7 @@ import Dialog from '~/components/ui/Dialog.vue';
 import Button from '~/components/ui/Button.vue';
 import Label from '~/components/ui/Label.vue';
 import Input from '~/components/ui/Input.vue';
-import { showMessageToast } from '~/composables/useUtils.js';
+import { showMessageToast, callVideoService } from '~/composables/useUtils.js';
 
 // Props
 const props = defineProps({
@@ -29,7 +29,7 @@ const addStream = async () => {
     try {
         // Call the API to add the stream
         addingStream.value = true;
-        await $fetch('/api/streams', {
+        await callVideoService('/api/streams', {
             method: 'POST',
             body: { streamUrl: newStreamUrl.value.trim() }
         });

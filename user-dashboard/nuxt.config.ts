@@ -1,13 +1,13 @@
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineNuxtConfig({
-    ssr: true,
+    ssr: false,
 
     runtimeConfig: {
         // Public runtime config
         public: {
             nuxtEnvironment: process.env.NUXT_ENVIRONMENT || 'development',
-            videoServiceBaseUrl: process.env.VIDEO_SERVICE_BASE_URL || 'http://localhost:3001',
+            videoServiceUrl: process.env.VIDEO_SERVICE_URL || 'http://localhost',
             videoServicePort: process.env.VIDEO_SERVICE_PORT || '3001'
         }
     },
@@ -34,17 +34,6 @@ export default defineNuxtConfig({
 
     devtools: {
         enabled: false
-    },
-
-    nitro: {
-        prerender: {
-            routes: [
-                '/',
-                '/events',
-                '/streams',
-                '/detect'
-            ]
-        }
     },
 
     compatibilityDate: '2025-09-24'

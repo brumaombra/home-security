@@ -7,13 +7,22 @@ export const setBusy = busy => {
     globalStore.value.busy = busy;
 };
 
+// Call the video service API
+export const callVideoService = async (url, options = {}) => {
+    const runtimeConfig = useRuntimeConfig();
+    const videoServiceUrl = runtimeConfig.public.videoServiceUrl;
+    const videoServicePort = runtimeConfig.public.videoServicePort;
+    const fullUrl = `${videoServiceUrl}:${videoServicePort}${url}`;
+    return await $fetch(fullUrl, options);
+};
+
 // Create the images URL
 export const getImageUrl = filename => {
     const runtimeConfig = useRuntimeConfig();
-    const port = runtimeConfig.public.videoServicePort;
+    const videoServicePort = runtimeConfig.public.videoServicePort;
     const currentUrl = window.location.origin; // Get current URL origin
     const url = new URL(currentUrl);
-    url.port = port; // Change to video service port
+    url.port = videoServicePort; // Change to video service port
     return `${url.origin}/images/${filename}`;
 };
 
