@@ -1,49 +1,32 @@
 @echo off
 echo Starting deployment process...
 
-:: ----------------- Deploy the user-dashboard Nuxt app -----------------
+:: ----------------- Deploy the user-dashboard static site -----------------
 
-:: Remove the node_modules folder before deployment
-echo Removing node_modules folder...
-if exist user-dashboard\.output\server\node_modules rmdir /s /q user-dashboard\.output\server\node_modules
+:: Generate the static site
+echo Generating static site for user-dashboard...
+cd user-dashboard
+if exist dist rmdir /s /q dist
+npm run generate
+if %errorlevel% neq 0 (
+    echo Error: Failed to generate static site.
+    goto :error
+)
+cd ..
 
 :: Force delete and recreate the directory on the Raspberry Pi
-echo Force deleting and recreating directory on Raspberry Pi...
+echo Force deleting and recreating user-dashboard directory on Raspberry Pi...
 ssh pi@raspberry.local "rm -rf ~/projects/home-security/user-dashboard && mkdir -p ~/projects/home-security/user-dashboard"
 if %errorlevel% neq 0 (
     echo Error: Failed to delete and recreate directory on Raspberry Pi.
     goto :error
 )
 
-:: Deploy the build folder to Raspberry Pi
-echo Deploying build folder to Raspberry Pi...
-scp -r user-dashboard\.output\* pi@raspberry.local:~/projects/home-security/user-dashboard/
+:: Deploy the static site to Raspberry Pi
+echo Deploying static site to Raspberry Pi...
+scp -r user-dashboard\dist\* pi@raspberry.local:~/projects/home-security/user-dashboard/
 if %errorlevel% neq 0 (
-    echo Error: Failed to deploy via SCP.
-    goto :error
-)
-
-:: Deploy the ecosystem config file to Raspberry Pi
-echo Deploying ecosystem config file to Raspberry Pi...
-scp user-dashboard\ecosystem.config.cjs pi@raspberry.local:~/projects/home-security/user-dashboard/
-if %errorlevel% neq 0 (
-    echo Error: Failed to deploy ecosystem config file.
-    goto :error
-)
-
-:: Install dependencies on Raspberry Pi
-echo Installing dependencies on Raspberry Pi...
-ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && cd ~/projects/home-security/user-dashboard/server && npm install"
-if %errorlevel% neq 0 (
-    echo Error: Failed to install dependencies on Raspberry Pi.
-    goto :error
-)
-
-:: Restart the Nuxt app using PM2
-echo Restarting Nuxt app using PM2...
-ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && pm2 restart security-user-dashboard || pm2 start ~/projects/home-security/user-dashboard/ecosystem.config.cjs"
-if %errorlevel% neq 0 (
-    echo Error: Failed to restart or start Nuxt app using PM2.
+    echo Error: Failed to deploy static site via SCP.
     goto :error
 )
 
