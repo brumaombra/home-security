@@ -3,17 +3,6 @@ echo Starting deployment process...
 
 :: ----------------- Deploy the user-dashboard static site -----------------
 
-:: Generate the static site
-echo Generating static site for user-dashboard...
-cd user-dashboard
-if exist dist rmdir /s /q dist
-npm run generate
-if %errorlevel% neq 0 (
-    echo Error: Failed to generate static site.
-    goto :error
-)
-cd ..
-
 :: Force delete and recreate the directory on the Raspberry Pi
 echo Force deleting and recreating user-dashboard directory on Raspberry Pi...
 ssh pi@raspberry.local "rm -rf ~/projects/home-security/user-dashboard && mkdir -p ~/projects/home-security/user-dashboard"
