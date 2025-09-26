@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { printLog } from '../utils/utils.js';
 
 // Load logs from logs.json
 export const loadLogs = () => {
@@ -13,7 +12,7 @@ export const loadLogs = () => {
         // If file doesn't exist, return empty array
         return [];
     } catch (error) {
-        printLog('Error loading logs:', { type: 'error', error });
+        console.error('Error loading logs:', error); // Use console.error to avoid recursion
         return [];
     }
 };
