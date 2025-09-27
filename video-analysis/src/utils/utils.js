@@ -8,11 +8,14 @@ export const roundPercentage = value => {
 };
 
 // Save a base64 image to a file
-export const saveBase64ImageToFile = (base64Image, streamId = null) => {
+export const saveBase64ImageToFile = (base64Image, filename) => {
     try {
-        const timestamp = Date.now();
-        const streamSuffix = streamId ? `_${streamId}` : '';
-        const filename = `detection_${timestamp}${streamSuffix}.jpg`;
+        // If filename is not provided, throw an error
+        if (!filename) {
+            throw new Error('Filename is required to save the image.');
+        }
+
+        // Save the image
         fs.writeFileSync(`public/images/${filename}`, base64Image, 'base64');
         printLog(`Saved detection image: ${filename}`);
         return filename;

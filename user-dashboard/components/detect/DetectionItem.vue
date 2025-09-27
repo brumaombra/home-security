@@ -3,9 +3,6 @@
 const props = defineProps({
     detection: { type: Object, default: null }
 });
-
-// Format confidence percentage
-const confidence = computed(() => Math.round(props.detection.score * 100));
 </script>
 
 <template>
@@ -22,9 +19,9 @@ const confidence = computed(() => Math.round(props.detection.score * 100));
         <!-- Confidence bar -->
         <div class="flex items-center">
             <div class="w-24 h-2 bg-gray-200 rounded mr-3">
-                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded" :style="{ width: confidence + '%' }"></div>
+                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded" :style="{ width: props.detection.score + '%' }"></div>
             </div>
-            <div class="font-semibold text-blue-600">{{ confidence }}%</div>
+            <div class="font-semibold text-blue-600">{{ props.detection.score }}%</div>
         </div>
     </div>
 </template>

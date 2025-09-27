@@ -18,14 +18,14 @@ const props = defineProps({
                 </div>
                 <div>
                     <h3 class="text-gray-900 text-2xl font-bold">Detection Results</h3>
-                    <div class="text-blue-700 font-semibold text-xl">Found {{ results.detections?.length }} objects</div>
+                    <div class="text-blue-700 font-semibold text-xl">Found {{ results.detectionData?.detections?.length }} objects</div>
                 </div>
             </div>
         </div>
 
         <!-- Detection items -->
         <div class="space-y-4">
-            <DetectionItem v-for="(detection, index) in results.detections" :key="index" :detection="detection" />
+            <DetectionItem v-for="(detection, index) in results.detectionData?.detections" :key="index" :detection="detection" />
         </div>
     </Card>
 </template>

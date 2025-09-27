@@ -160,7 +160,7 @@ const analyzeMovementImage = async (pngFrame, streamId) => {
         const detections = detectionResult.detections || [];
 
         // Save image
-        const imageFilename = `detection_${streamId}_${timestamp}.jpg`;
+        const imageFilename = `detection_${timestamp}_${streamId}.jpg`;
         saveBase64ImageToFile(detectionResult.annotatedImage, imageFilename);
         printLog(`Detections found on ${streamId}: ${detections.length}, image saved as ${imageFilename}`);
 

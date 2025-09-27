@@ -53,7 +53,7 @@ const analyzeImage = async () => {
         }
 
         // Success message
-        showMessageToast({ message: `Analysis complete! Found ${response.detections.length} objects.`, type: 'success' });
+        showMessageToast({ message: `Analysis complete! Found ${response.detectionData?.detections?.length} objects.`, type: 'success' });
     } catch (error) {
         showMessageToast({ message: `Error: ${error.message}`, type: 'error' });
     } finally {
