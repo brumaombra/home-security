@@ -33,9 +33,6 @@ app.use('/api/logs', logsRouter);
 
 // Start the server
 export const startServer = config => {
-    // Make inference worker accessible in routes
-    app.locals.inferenceWorker = config.inferenceWorker;
-
     // Start the server
     server.listen(config.serverPort, () => {
         printLog(`Server running on port ${config.serverPort}!`);

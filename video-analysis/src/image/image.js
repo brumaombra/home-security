@@ -1,6 +1,5 @@
 import { Jimp } from 'jimp';
 import { createCanvas, loadImage } from 'canvas';
-import { createTensorFromImage } from '../tensorflow/tensorflow.js';
 import { printLog } from '../utils/utils.js';
 
 // Convert image buffer to tensor
@@ -14,20 +13,8 @@ export const processImage = async ({ imageBuffer, resize = false, maxWidth = 102
             image.scaleToFit({ w: maxWidth, h: maxHeight });
         }
 
-        // Convert to RGB format and get pixel data
-        const { data, width, height } = image.bitmap;
-
-        // Convert RGBA to RGB (remove alpha channel)
-        const rgbData = new Uint8Array(width * height * 3);
-        for (let i = 0; i < width * height; i++) {
-            rgbData[i * 3] = data[i * 4]; // R
-            rgbData[i * 3 + 1] = data[i * 4 + 1]; // G
-            rgbData[i * 3 + 2] = data[i * 4 + 2]; // B
-        }
-
         // Return processed image data
-        const tensor = createTensorFromImage({ rgbData, width, height });
-        return { tensor, width, height, originalImage: image };
+        return { width: image.width, height: image.height, originalImage: image };
     } catch (error) {
         printLog('Error processing image:', { type: 'error', error });
         throw error;
@@ -65,7 +52,7 @@ export const drawDetections = async (image, predictions) => {
         // Loop through predictions and draw them
         predictions.forEach((prediction, index) => {
             const { bbox, class: className, score } = prediction;
-            const [x, y, width, height] = bbox;
+            const { x, y, width, height } = bbox;
 
             // Get color for this detection
             const color = colors[index % colors.length];
@@ -76,7 +63,7 @@ export const drawDetections = async (image, predictions) => {
             ctx.strokeRect(x, y, width, height);
 
             // Draw label with background
-            const label = `${className} ${Math.round(score * 100)}%`;
+            const label = `${className} ${score}%`;
             ctx.font = '18px Arial';
             const textMetrics = ctx.measureText(label);
             const labelWidth = textMetrics.width + 12;

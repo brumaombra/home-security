@@ -11,8 +11,6 @@
 	"author": "Mauro Brambilla",
 	"license": "ISC",
 	"dependencies": {
-		"@tensorflow-models/coco-ssd": "2.2.3",
-		"@tensorflow/tfjs": "4.22.0",
 		"canvas": "3.2.0",
 		"cors": "2.8.5",
 		"dotenv": "17.2.2",

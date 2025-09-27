@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import { fork } from 'child_process';
 import { startStreamWorkers } from './src/stream/stream.js';
 import { startServer } from './src/server/web-server.js';
 import { printLog } from './src/utils/utils.js';
@@ -11,7 +10,6 @@ dotenv.config();
 const config = {
     serverPort: process.env.SERVER_PORT, // Port for the web server
     streamSources: [], // Array of URLs for MJPEG streams
-    inferenceWorker: null // Placeholder for inference worker
 };
 
 // Check the env variables
@@ -30,11 +28,6 @@ const initApp = async config => {
     try {
         // Check environment variables
         checkEnvVariables();
-
-        // Start the inference worker
-        printLog('Starting inference worker...');
-        const inferenceWorker = fork('./src/tensorflow/inference-worker.js', [], { stdio: 'inherit' });
-        config.inferenceWorker = inferenceWorker;
 
         // Start the application
         printLog('Starting the application...');

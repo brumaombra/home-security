@@ -3,44 +3,22 @@ import jpeg from 'jpeg-js';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { saveBase64ImageToFile, printLog } from '../utils/utils.js';
+import { detectObjectsInImage } from '../detection/object-detection.js';
 
 let streamState = null; // State for this stream
 let lastFrame = null;
 let isMovementDetected = false;
 let skipCounter = 0;
-let pendingRequests = new Map(); // Map for pending detection requests
-let requestIdCounter = 0; // Counter for request IDs
 const DETECTION_COOLDOWN = 5000; // Detection cooldown period in ms
-
-// Request object detection from parent process
-const requestDetection = imageBuffer => {
-    return new Promise((resolve) => {
-        const requestId = `${streamState.id}_${requestIdCounter++}`;
-        pendingRequests.set(requestId, resolve);
-        process.send({ type: 'detect_request', imageBuffer, requestId, streamId: streamState.id });
-    });
-};
 
 // Initialize worker
 process.on('message', async message => {
     if (message.streamUrl && message.streamId) {
         await initWorker(message.streamUrl, message.streamId);
-    } else if (message.type === 'detect_response') {
-        // Handle detection response
-        const { requestId, detections, annotatedImage, error } = message;
-        const resolve = pendingRequests.get(requestId);
-        if (resolve) {
-            pendingRequests.delete(requestId);
-            if (error) {
-                resolve({ error });
-            } else {
-                resolve({ detections, annotatedImage });
-            }
-        }
     }
 });
 
-// Initialize TensorFlow and start stream
+// Initialize worker and start stream
 const initWorker = async (streamUrl, streamId) => {
     try {
         printLog(`Worker starting for ${streamId} from ${streamUrl}...`);
@@ -174,25 +152,17 @@ const detectMovement = async (image, streamId) => {
 const analyzeMovementImage = async (pngFrame, streamId) => {
     printLog(`Analyzing frame from ${streamId} for object detection...`);
     const timestamp = Date.now();
-    let imageFilename = null;
-    let detections = [];
 
     try {
-        // Convert PNG to buffer for detection
-        const pngBuffer = PNG.sync.write(pngFrame);
-        const detectionResult = await requestDetection(pngBuffer);
-        if (detectionResult.error) {
-            throw detectionResult.error;
-        }
+        // Detect objects
+        const pngBuffer = PNG.sync.write(pngFrame); // Convert PNG to buffer for detection
+        const detectionResult = await detectObjectsInImage({ imageBuffer: pngBuffer, generateImage: true }); // Detect objects
+        const detections = detectionResult.detections || [];
 
-        // Get detections
-        detections = detectionResult.detections || [];
-
-        // Save annotated image if available
-        if (detectionResult.annotatedImage) {
-            printLog(`Annotated image generated from ${streamId}`);
-            imageFilename = saveBase64ImageToFile(detectionResult.annotatedImage, streamId);
-        }
+        // Save image
+        const imageFilename = `detection_${streamId}_${timestamp}.jpg`;
+        saveBase64ImageToFile(detectionResult.annotatedImage, imageFilename);
+        printLog(`Detections found on ${streamId}: ${detections.length}, image saved as ${imageFilename}`);
 
         // Create event object
         const event = {

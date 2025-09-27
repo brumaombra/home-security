@@ -1,6 +1,7 @@
 Always conform to the coding styles defined below:
 
-- This is an app divided into a Nuxt 3 app and a Node.js backend.
+- This is an app divided into 3 parts: a Nuxt 3 app, a Node.js backend, and a Python inference server.
+- The Nuxt 3 app is the frontend, the Node.js backend handles API requests, and the Python inference server runs the image detection model.
 - Always use a 4 space indent.
 - Always use arrow functions instead of function declarations.
 - Always use `const` or `let` instead of `var`.

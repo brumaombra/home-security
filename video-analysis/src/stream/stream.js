@@ -4,7 +4,6 @@ import { notifyEventDetected } from '../websocket/websocket.js';
 import { printLog } from '../utils/utils.js';
 
 let streams = []; // Keep track of streams
-let inferenceWorker = null; // Reference to the inference worker
 
 // Helper function to create and setup a worker for a stream
 const createWorkerForStream = stream => {
@@ -29,8 +28,6 @@ const createWorkerForStream = stream => {
         } else if (message.type === 'connected') {
             printLog(`Stream ${stream.streamId} connected successfully`);
             stream.status = 'active';
-        } else if (message.type === 'detect_request') {
-            inferenceWorker.send(message); // Forward detection request to inference worker
         }
     });
 
@@ -69,22 +66,6 @@ const createWorkerForStream = stream => {
 
 // Start a worker process for every stream
 export const startStreamWorkers = async config => {
-    // Save reference to the inference worker
-    inferenceWorker = config.inferenceWorker;
-
-    // Listen for messages from inference worker
-    inferenceWorker.on('message', message => {
-        if (message.type === 'detect_response') {
-            // Find the stream worker that made the request
-            const { requestId } = message;
-            const streamId = requestId.split('_').slice(0, 2).join('_'); // e.g., stream_0
-            const stream = streams.find(s => s.streamId === streamId);
-            if (stream && stream.worker) {
-                stream.worker.send(message);
-            }
-        }
-    });
-
     // Spawn workers for each stream
     config.streamSources?.forEach((streamUrl, index) => {
         // Create stream object with initial status
