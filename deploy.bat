@@ -94,7 +94,7 @@ if %errorlevel% neq 0 (
 
 :: Install Python dependencies on Raspberry Pi
 echo Installing python-inference-server dependencies on Raspberry Pi...
-ssh pi@raspberry.local "cd ~/projects/home-security/python-inference-server && pip3 install -r requirements.txt"
+ssh pi@raspberry.local "cd ~/projects/home-security/python-inference-server && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
 if %errorlevel% neq 0 (
     echo Error: Failed to install python-inference-server dependencies on Raspberry Pi.
     goto :error
@@ -102,7 +102,7 @@ if %errorlevel% neq 0 (
 
 :: Start the python-inference-server using PM2
 echo Starting python-inference-server using PM2...
-ssh pi@raspberry.local "pm2 restart python-inference || pm2 start ~/projects/home-security/python-inference-server/ecosystem.config.cjs"
+ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && pm2 restart python-inference || pm2 start ~/projects/home-security/python-inference-server/ecosystem.config.cjs"
 if %errorlevel% neq 0 (
     echo Error: Failed to start python-inference-server using PM2.
     goto :error
