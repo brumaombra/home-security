@@ -3,9 +3,13 @@ echo Starting deployment process...
 
 :: ----------------- Deploy the user-dashboard static site -----------------
 
+:: Build the static site
+:: echo Building user-dashboard static site...
+:: npm run build --prefix user-dashboard
+
 :: Force delete and recreate the directory on the Raspberry Pi
 echo Force deleting and recreating user-dashboard directory on Raspberry Pi...
-ssh pi@raspberry.local "rm -rf ~/projects/home-security/user-dashboard && mkdir -p ~/projects/home-security/user-dashboard"
+ssh pi@raspberry.local "sudo rm -rf ~/projects/home-security/user-dashboard && mkdir -p ~/projects/home-security/user-dashboard"
 if %errorlevel% neq 0 (
     echo Error: Failed to delete and recreate directory on Raspberry Pi.
     goto :error
@@ -36,7 +40,7 @@ if exist deploy-video-analysis\public\images del /q deploy-video-analysis\public
 
 :: Force delete and recreate the video-analysis directory on the Raspberry Pi
 echo Force deleting and recreating video-analysis directory on Raspberry Pi...
-ssh pi@raspberry.local "rm -rf ~/projects/home-security/video-analysis && mkdir -p ~/projects/home-security/video-analysis"
+ssh pi@raspberry.local "sudo rm -rf ~/projects/home-security/video-analysis && mkdir -p ~/projects/home-security/video-analysis"
 if %errorlevel% neq 0 (
     echo Error: Failed to delete and recreate video-analysis directory on Raspberry Pi.
     goto :error
@@ -67,6 +71,40 @@ echo Restarting video-analysis app using PM2...
 ssh pi@raspberry.local "source ~/.nvm/nvm.sh && nvm use default && pm2 restart security-video-analysis || pm2 start ~/projects/home-security/video-analysis/ecosystem.config.cjs"
 if %errorlevel% neq 0 (
     echo Error: Failed to restart or start video-analysis app using PM2.
+    goto :error
+)
+
+:: ----------------- Deploy the python-inference-server -----------------
+
+:: Force delete and recreate the python-inference-server directory on the Raspberry Pi
+echo Force deleting and recreating python-inference-server directory on Raspberry Pi...
+ssh pi@raspberry.local "sudo rm -rf ~/projects/home-security/python-inference-server && mkdir -p ~/projects/home-security/python-inference-server"
+if %errorlevel% neq 0 (
+    echo Error: Failed to delete and recreate directory on Raspberry Pi.
+    goto :error
+)
+
+:: Deploy the python-inference-server to Raspberry Pi
+echo Deploying python-inference-server to Raspberry Pi...
+scp -r python-inference-server\* pi@raspberry.local:~/projects/home-security/python-inference-server/
+if %errorlevel% neq 0 (
+    echo Error: Failed to deploy python-inference-server via SCP.
+    goto :error
+)
+
+:: Install Python dependencies on Raspberry Pi
+echo Installing python-inference-server dependencies on Raspberry Pi...
+ssh pi@raspberry.local "cd ~/projects/home-security/python-inference-server && pip3 install -r requirements.txt"
+if %errorlevel% neq 0 (
+    echo Error: Failed to install python-inference-server dependencies on Raspberry Pi.
+    goto :error
+)
+
+:: Start the python-inference-server using PM2
+echo Starting python-inference-server using PM2...
+ssh pi@raspberry.local "pm2 restart python-inference || pm2 start ~/projects/home-security/python-inference-server/ecosystem.config.cjs"
+if %errorlevel% neq 0 (
+    echo Error: Failed to start python-inference-server using PM2.
     goto :error
 )
 
