@@ -1,0 +1,8 @@
+# Exclude virtual environment and cache files
+venv/
+yoloserver/
+__pycache__/
+*.pyc
+
+# Exclude model files
+*.pt
