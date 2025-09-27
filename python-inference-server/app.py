@@ -7,23 +7,26 @@ import cv2
 import numpy as np
 import time
 
-# Inizializza app e modello
+# Initialize app
 app = FastAPI()
 
 # Load YOLO model
-model = YOLO("models/yolo11n.pt")  # usa YOLOv8 nano per velocità
+model = YOLO("models/yolo11n.pt")
 
-DEFAULT_CONFIDENCE = 0.25
+DEFAULT_CONFIDENCE = 0.25 # Default confidence threshold
 
+# Class for image data input
 class ImageData(BaseModel):
-    image: str  # immagine in base64
-    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    image: str # Base 64 encoded image
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0) # Optional confidence threshold
 
+# Function to decode base64 image
 def _strip_base64_header(image_base64: str) -> str:
     if "," in image_base64:
         return image_base64.split(",", 1)[1]
     return image_base64
 
+# Function to decode base64 image to OpenCV format
 def decode_image(image_base64: str):
     try:
         clean_base64 = _strip_base64_header(image_base64)
@@ -37,16 +40,16 @@ def decode_image(image_base64: str):
 
     return image
 
+# Endpoint for object detection
 @app.post("/detect")
 async def detect(data: ImageData):
-    image = decode_image(data.image)
+    image = decode_image(data.image) # Decode image
+    confidence = data.confidence if data.confidence is not None else DEFAULT_CONFIDENCE # Use provided or default confidence
+    start_time = time.perf_counter() # Start timing
+    results = model.predict(image, conf=confidence, verbose=False) # Run inference
+    inference_time_ms = round((time.perf_counter() - start_time) * 1000, 2) # Calculate inference time
 
-    confidence = data.confidence if data.confidence is not None else DEFAULT_CONFIDENCE
-
-    start_time = time.perf_counter()
-    results = model.predict(image, conf=confidence, verbose=False)
-    inference_time_ms = round((time.perf_counter() - start_time) * 1000, 2)
-
+    # Process results
     detections = []
     if results and results[0].boxes is not None:
         for box in results[0].boxes:
