@@ -27,6 +27,7 @@ Home Security System is an intelligent **home monitoring solution** designed for
 - 🔄 **WebSocket Updates**: Real-time notifications and live data refresh
 - 📈 **Security Analytics**: Historical events, logs, and detection insights
 - 🛡️ **Privacy-Focused**: Local processing with no cloud dependencies
+- 🥧 **Raspberry Pi Compatible**: Entirely runnable on Raspberry Pi for enhanced security and privacy
 
 ---
 
@@ -34,17 +35,14 @@ Home Security System is an intelligent **home monitoring solution** designed for
 
 <div align="center">
 
-### 📱 Dashboard Screenshot
-![Dashboard Screenshot](docs/images/streams-screenshot.png.png)
+### 📊 Events Overview
+![Events Screenshot](docs/images/events-screenshot.png)
 
 ### 📹 Streams Management
 ![Streams Screenshot](docs/images/streams-screenshot.png.png)
 
 ### 🤖 Object Recognition
 ![Object Recognition Screenshot](docs/images/object-recognition-screenshot.png.png)
-
-### 📊 Events Overview
-![Events Screenshot](docs/images/events-screenshot.png)
 
 ### 📝 Logs View
 ![Logs Screenshot](docs/images/logs-screenshot.png.png)
