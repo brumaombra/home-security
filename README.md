@@ -2,7 +2,6 @@
 
 <div align="center">
 
-![Home Security](https://img.shields.io/badge/Home-Security-blue?style=for-the-badge&logo=home-assistant)
 ![Nuxt 3](https://img.shields.io/badge/Nuxt-3.17.6-00DC82?style=flat-square&logo=nuxt.js)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python)
 ![YOLO](https://img.shields.io/badge/YOLO-11n-FF6B35?style=flat-square&logo=yolo)
